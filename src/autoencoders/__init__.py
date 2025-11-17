@@ -1,0 +1,2 @@
+from .frame_autoencoder_visual import FrameAutoencoderVisual
+from .frame_autoencoder_fusion import FrameAutoencoderFusion

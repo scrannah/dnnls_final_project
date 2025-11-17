@@ -32,3 +32,6 @@ class ClipTextEncoder(nn.Module):
             outputs = self.model(**inputs)
 
         return outputs.text_embeds
+
+
+

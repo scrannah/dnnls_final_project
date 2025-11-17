@@ -23,5 +23,3 @@ class VisualEncoderFusion(nn.Module):
         z_desc = self.text_encoder(description)
         z = torch.cat((z, z_desc), dim=1)
         z = self.projection(z)
-
-        return z
