@@ -1,3 +1,6 @@
+import torch
+import torch.nn as nn
+
 class EncoderLSTM(nn.Module):
     """
       Encodes a sequence of tokens into a latent space representation.

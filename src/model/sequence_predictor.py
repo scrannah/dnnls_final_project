@@ -1,9 +1,5 @@
-
 import torch
 import torch.nn as nn
-
-
-from attention.attention import Attention
 
 class SequencePredictor(nn.Module):
     def __init__(self, visual_autoencoder, text_autoencoder, latent_dim,
