@@ -6,7 +6,6 @@ class Backbone(nn.Module):
       Main convolutional blocks for our CNN
     """
     def __init__(self, latent_dim=16, output_w = 8, output_h = 16): # remember to calculate output w h
-        # output w and h need changing in backbone, encoder and decoder if transform resize changes for sp dataset
         super(Backbone, self).__init__()
         # Encoder convolutional layers
         self.encoder_conv = nn.Sequential(
@@ -59,10 +58,10 @@ class VisualDecoder(nn.Module):
     """
       Decodes a latent representation into a content image and a context image
     """
-    def __init__(self, latent_dim=16, output_w = 8, output_h = 16, imh = 60, imw = 125):
+    def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
         super(VisualDecoder, self).__init__()
-        self.imh = imh # image height TRANSFORM RESIZE!!!
-        self.imw = imw # image weight
+        self.imh = 60  # image height TRANSFORM RESIZE
+        self.imw = 125 # image width
         self.flatten_dim = 64 * output_w * output_h
         self.output_w = output_w
         self.output_h = output_h
@@ -97,11 +96,10 @@ class VisualDecoder(nn.Module):
       return x
 
 class VisualAutoencoder( nn.Module):
-    def __init__(self, latent_dim=16, output_w = 8, output_h = 16, imh = 60, imw = 125):
-        # change output w h here for autoencoder only, it will pass values down to backbone, encoder and decoder
+    def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
         super(VisualAutoencoder, self).__init__()
         self.encoder = VisualEncoder(latent_dim, output_w, output_h)
-        self.decoder = VisualDecoder(latent_dim, output_w, output_h, imh, imw)
+        self.decoder = VisualDecoder(latent_dim, output_w, output_h)
 
     def forward(self, x):
         z = self.encoder(x)
