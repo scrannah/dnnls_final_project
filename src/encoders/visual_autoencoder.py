@@ -5,7 +5,7 @@ class Backbone(nn.Module):
     """
       Main convolutional blocks for our CNN
     """
-    def __init__(self, latent_dim=16, output_w = 8, output_h = 16): # remember to calculate output w h
+    def __init__(self, latent_dim=16, output_w = 8, output_h = 16):  # remember to calculate output w h
         super(Backbone, self).__init__()
         # Encoder convolutional layers
         self.encoder_conv = nn.Sequential(
