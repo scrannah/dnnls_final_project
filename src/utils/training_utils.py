@@ -16,7 +16,7 @@ def init_weights(m):
 
 
 # Plots four images and their reconstructions
-def validation( model, data_loader, device ):
+def validation( model, data_loader, device, tokenizer ):
   model.eval()
   with torch.no_grad():
     frames, descriptions, image_target, text_target = next(iter(data_loader))
