@@ -1,5 +1,4 @@
 from src.utils.training_utils import validation
-
 def train_sequence_predictor(
         model,
         train_dataloader,
