@@ -74,7 +74,8 @@ def validation( model, data_loader, device, tokenizer ):
                                 cell[:, 0, :].unsqueeze(1),
                                 max_len=150,
                                 sos_token_id=tokenizer.cls_token_id,
-                                eos_token_id=tokenizer.sep_token_id, device)
+                                eos_token_id=tokenizer.sep_token_id,
+                                device=device)
 
     wrapped_text = textwrap.fill(tokenizer.decode(generated_tokens), width=40)
 
