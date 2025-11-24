@@ -3,6 +3,7 @@ from src.utils.training_utils import validation, show_image
 def train_sequence_predictor(
         model,
         train_dataloader,
+        val_dataloader,
         optimizer,
         criterion_images,
         criterion_ctx,
@@ -51,10 +52,10 @@ def train_sequence_predictor(
         model.eval()
         print("Validation on training dataset")
         print( "----------------")
-        validation( model, train_dataloader, device )
+        validation( model, train_dataloader, device, tokenizer )
         print("Validation on validation dataset")
         print( "----------------")
-        validation( model, val_dataloader, device)
+        validation( model, val_dataloader, device, tokenizer)
         model.train()
 
         epoch_loss = running_loss / len(train_dataloader.dataset)
