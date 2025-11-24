@@ -18,7 +18,7 @@ class SequencePredictionDataset(Dataset):
     def __len__(self):
         return len(self.dataset)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx, tokenizer):
       """
       Selects a 5 frame sequence from the dataset. Sets 4 for training and the last one
       as a target.
@@ -26,7 +26,7 @@ class SequencePredictionDataset(Dataset):
       num_frames = self.dataset[idx]["frame_count"]
       frames = self.dataset[idx]["images"]
       self.image_attributes = parse_gdi_text(self.dataset[idx]["story"])
-
+      self.tokenizer = tokenizer
       frame_tensors = []
       description_list = []
 
