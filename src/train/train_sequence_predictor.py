@@ -51,10 +51,10 @@ def train_sequence_predictor(
         model.eval()
         print("Validation on training dataset")
         print( "----------------")
-        validation( model, train_dataloader )
+        validation( model, train_dataloader, device )
         print("Validation on validation dataset")
         print( "----------------")
-        validation( model, val_dataloader)
+        validation( model, val_dataloader, device)
         model.train()
 
         epoch_loss = running_loss / len(train_dataloader.dataset)
