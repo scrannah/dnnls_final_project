@@ -1,6 +1,7 @@
 import torch
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as FT
+from torch.utils.data import Dataset
 from .tag_extraction import parse_gdi_text
 
 class SequencePredictionDataset(Dataset):

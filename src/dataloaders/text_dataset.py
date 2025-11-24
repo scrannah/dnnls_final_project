@@ -1,5 +1,6 @@
 from .tag_extraction import parse_gdi_text
 import numpy as np
+from torch.utils.data import Dataset
 
 class TextTaskDataset(Dataset):
     def __init__(self, dataset):

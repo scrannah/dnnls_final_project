@@ -1,5 +1,6 @@
 import torch
 import torchvision.transforms as transforms
+from torch.utils.data import Dataset
 
 class AutoEncoderTaskDataset(Dataset):
     def __init__(self, dataset):
