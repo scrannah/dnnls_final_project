@@ -55,7 +55,7 @@ class SequencePredictionDataset(Dataset):
       image_target = self.transform(image_target)
       text_target = self.image_attributes[4]["description"]
 
-      target_ids = tokenizer(description,
+      target_ids = self.tokenizer(description,
                              return_tensors="pt",
                              padding="max_length",
                              truncation=True,
