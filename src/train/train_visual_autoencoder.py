@@ -20,7 +20,7 @@ def train_visual_autoencoder(
             images = images.to(device)
 
             # Forward pass (autoencoder returns reconstructed images)
-            x_content, x_context = model(images)
+            x_content, _ = model(images)
 
             # Compute reconstruction loss, how does it compare to the actual image
             loss = criterion(x_content, images) # I ONLY WANT CONTENT FOR VISUAL TRAINING, THIS TAKES CONTENT FROM THE DECODER ONLY
