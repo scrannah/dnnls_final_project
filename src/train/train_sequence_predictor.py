@@ -1,4 +1,4 @@
-from src.utils.training_utils import validation
+from src.utils.training_utils import validation, show_image
 
 def train_sequence_predictor(
         model,

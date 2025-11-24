@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import textwrap
+import torchvision.transforms as transforms
 from .token_generate import generate
 
 def init_weights(m):
@@ -87,4 +88,18 @@ def validation( model, data_loader, device ):
     ax[1,5].axis('off')
     plt.tight_layout()
     plt.show()
+
+def show_image(ax, image, de_normalize = False, img_mean = None, img_std = None):
+  """
+  De-normalize the image (if necessary) and show image
+  """
+  if de_normalize:
+    new_mean = -img_mean/img_std
+    new_std = 1/img_std
+
+    image = transforms.Normalize(
+        mean=new_mean,
+        std=new_std
+    )(image)
+  ax.imshow(image.permute(1, 2, 0))
 
