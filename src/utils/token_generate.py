@@ -1,6 +1,6 @@
 import torch
 
-def generate(model, hidden, cell, max_len, sos_token_id, eos_token_id):
+def generate(model, hidden, cell, max_len, sos_token_id, eos_token_id, device):
       """
         This function generates a sequence of tokens using the provided decoder.
       """
