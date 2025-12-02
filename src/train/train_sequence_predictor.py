@@ -15,6 +15,17 @@ def train_sequence_predictor(
 
     model.train()
     epoch_losses = []
+    train_mse_values = []
+    train_perplexity_values = []
+    train_bleu_values = []
+    train_crossmodal_values = []
+    train_ssim_values = []
+
+    val_mse_values = []
+    val_perplexity_values = []
+    val_bleu_values = []
+    val_crossmodal_values = []
+    val_ssim_values = []
 
     for epoch in range(num_epochs):
 
@@ -52,28 +63,40 @@ def train_sequence_predictor(
         model.eval()
         print("Validation on training dataset")
         print( "----------------")
-        mse_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation( sequence_predictor, train_dataloader )
+        mse_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation( model, train_dataloader, device, tokenizer )
         train_mse_values.append(mse_values)
         train_perplexity_values.append(perplexity_values)
         train_bleu_values.append(bleu_values)
         train_crossmodal_values.append(crossmodal_values)
         train_ssim_values.append(ssim_values)
-        validation( model, train_dataloader, device, tokenizer )
         print("Validation on validation dataset")
         print( "----------------")
-        val_mse, val_perp, val_bleu, val_crossmodal, val_ssim = validation(
-        sequence_predictor, val_dataloader)
+        val_mse, val_perp, val_bleu, val_crossmodal, val_ssim = validation( model, val_dataloader, device, tokenizer )
         val_mse_values.append(val_mse)
         val_perplexity_values.append(val_perp)
         val_bleu_values.append(val_bleu)
         val_crossmodal_values.append(val_crossmodal)
         val_ssim_values.append(val_ssim)
-        validation( model, val_dataloader, device, tokenizer)
         model.train()
 
         epoch_loss = running_loss / len(train_dataloader.dataset)
         epoch_losses.append(epoch_loss)
         print(f"[Epoch {epoch+1}] AE Loss: {epoch_loss:.4f}")
 
-    return epoch_losses
+    return {
+    "epoch_losses": epoch_losses,
+
+    "train_mse": train_mse_values,
+    "train_perplexity": train_perplexity_values,
+    "train_bleu": train_bleu_values,
+    "train_crossmodal": train_crossmodal_values,
+    "train_ssim": train_ssim_values,
+
+    "val_mse": val_mse_values,
+    "val_perplexity": val_perplexity_values,
+    "val_bleu": val_bleu_values,
+    "val_crossmodal": val_crossmodal_values,
+    "val_ssim": val_ssim_values
+}
+
 

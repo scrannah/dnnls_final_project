@@ -1,6 +1,6 @@
 def train_visual_autoencoder(
         model,
-        dataloader,
+        train_dataloader, # change to add both validation and training
         optimizer,
         criterion,
         device,
