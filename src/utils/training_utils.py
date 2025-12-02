@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import textwrap
 import torchvision.transforms as transforms
 from .token_generate import generate
+from torchmetrics.image import StructuralSimilarityIndexMeasure
+from nltk.translate.bleu_score import sentence_bleu
 
 def init_weights(m):
     if isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
@@ -26,7 +28,64 @@ def validation( model, data_loader, device, tokenizer ):
     image_target = image_target.to(device)
     text_target = text_target.to(device)
 
-    predicted_image_k,context_image, _, hidden, cell = model(frames, descriptions, text_target)
+    ssim_fn = StructuralSimilarityIndexMeasure(data_range=1.0).to(device)
+
+    # METRICS
+
+    predicted_image_k,context_image, predicted_text_logits_k, hidden, cell = model(frames, descriptions, text_target) # need all these for validation metrics
+
+    val_image_mse = criterion_images(predicted_image_k, image_target).item()
+    print(f"Validation Image MSE: {val_image_mse:.4f}")
+
+
+    # flatten and remove teacher forcing
+
+    prediction_flat = predicted_text_logits_k.reshape(-1, tokenizer.vocab_size)
+
+    # flatten and remove teacher forcing
+    target_tokens = text_target.squeeze(1)[:, 1:] #remove the dimension (1) and BOS
+    target_flat = target_tokens.reshape(-1) # make it a 1d vector
+
+    # calculating los for text
+    val_loss_text = criterion_text(prediction_flat, target_flat)
+
+    val_perplexity = torch.exp(val_loss_text).item()
+    print(f"Validation Perplexity: {val_perplexity:.2f}")
+
+
+    # SSIM
+
+    predicted_img = torch.clamp(predicted_image_k, 0, 1) #SSIM needs values betwee 0,1 so we clamp for it here
+    target_img  = torch.clamp(image_target, 0, 1)
+    ssim_val = ssim_fn(predicted_img, target_img).item()
+    print(f"Validation SSIM: {ssim_val:.4f}")
+
+
+
+    pred_ids = torch.argmax(predicted_text_logits_k, dim=-1)[0]
+
+    # Ground-truth IDs
+    gt_ids = text_target.squeeze(1)[0] #get rid of middle dimension, pass first example for visualisation
+
+    # Decode tokens
+    pred_sentence = tokenizer.decode(pred_ids.tolist(), skip_special_tokens=True)
+    gt_sentence = tokenizer.decode(gt_ids.tolist(),  skip_special_tokens=True)
+
+    val_bleu = sentence_bleu([gt_sentence.split()], pred_sentence.split()) # pass ground truth and predicted
+    print(f"Validation BLEU: {val_bleu:.4f}")
+
+
+    img_emb = model.image_encoder(predicted_image_k)
+    txt_emb = model.text_encoder(pred_ids.unsqueeze(0))
+
+    # if text encoder returns embrddinsg for each token. average them
+    if isinstance(txt_emb, tuple): #if text encoder returns tuple not tensor, take 1st value only
+      txt_emb = txt_emb[0]
+    if txt_emb.dim() == 3:
+      txt_emb = txt_emb.mean(dim=1)  # mean pool sequence
+
+    val_cross_modal = F.cosine_similarity(img_emb, txt_emb).mean().item()
+    print(f"Validation Cross-modal Similarity: {val_cross_modal:.4f}")
 
     figure, ax = plt.subplots(2, 6, figsize=(20, 5), gridspec_kw={'height_ratios': [2, 1.5]})
 
