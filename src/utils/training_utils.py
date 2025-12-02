@@ -3,6 +3,7 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 import textwrap
 import torchvision.transforms as transforms
+import torchvision.transforms.functional as FT, F
 from .token_generate import generate
 from torchmetrics.image import StructuralSimilarityIndexMeasure
 from nltk.translate.bleu_score import sentence_bleu
