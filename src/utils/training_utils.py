@@ -3,7 +3,6 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 import textwrap
 import torchvision.transforms as transforms
-import torchvision.transforms.functional as FT
 import torch.nn.functional as F
 from .token_generate import generate
 from torchmetrics.image import StructuralSimilarityIndexMeasure
@@ -150,6 +149,13 @@ def validation( model, data_loader, device, tokenizer, criterion_images, criteri
     ax[1,5].axis('off')
     plt.tight_layout()
     plt.show()
+    return (
+    val_image_mse,
+    val_perplexity,
+    val_bleu,
+    val_cross_modal,
+    ssim_val
+)
 
 def show_image(ax, image, de_normalize = False, img_mean = None, img_std = None):
   """
