@@ -42,4 +42,4 @@ def train_visual_autoencoder(
         epoch_counter = epoch_counter + 1 # just to track epochs when printing
         print(f"[Epoch {epoch_counter}] AE Loss: {epoch_loss:.4f}")
 
-        return epoch_losses
+    return epoch_losses
