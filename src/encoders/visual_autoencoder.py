@@ -5,7 +5,7 @@ class Backbone(nn.Module):
     """
       Main convolutional blocks for our CNN
     """
-    def __init__(self, latent_dim=16, output_w = 8, output_h = 16):  # remember to calculate output w h
+    def __init__(self, bigger_dim =256, output_w = 8, output_h = 16):  # remember to calculate output w h
         super(Backbone, self).__init__()
         # Encoder convolutional layers
         self.encoder_conv = nn.Sequential(
@@ -25,7 +25,7 @@ class Backbone(nn.Module):
         # Calculate flattened dimension for linear layer
         self.flatten_dim = 64 * output_w * output_h
         # Latent space layers
-        self.fc1 = nn.Sequential(nn.Linear(self.flatten_dim, latent_dim), nn.ReLU())
+        self.fc1 = nn.Sequential(nn.Linear(self.flatten_dim, bigger_dim), nn.ReLU())
 
 
     def forward(self, x):
@@ -39,13 +39,13 @@ class VisualEncoder(nn.Module):
       Encodes an image into a latent space representation. Note the two pathways
       to try to disentangle the mean pattern from the image
     """
-    def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
+    def __init__(self, latent_dim=16,bigger_dim=256,output_w = 8, output_h = 16):
         super(VisualEncoder, self).__init__()
 
-        self.context_backbone = Backbone(latent_dim, output_w, output_h) # backbone is used twice to extract content AND context
-        self.content_backbone = Backbone(latent_dim, output_w, output_h)
+        self.context_backbone = Backbone(bigger_dim, output_w, output_h) # backbone is used twice to extract content AND context
+        self.content_backbone = Backbone(bigger_dim, output_w, output_h)
 
-        self.projection = nn.Linear(2*latent_dim, latent_dim)
+        self.projection = nn.Linear(2*bigger_dim, latent_dim)
 
     def forward(self, x):
         z_context = self.context_backbone(x)
@@ -96,9 +96,9 @@ class VisualDecoder(nn.Module):
       return x
 
 class VisualAutoencoder( nn.Module):
-    def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
+    def __init__(self, latent_dim=16,bigger_dim=256, output_w = 8, output_h = 16):
         super(VisualAutoencoder, self).__init__()
-        self.encoder = VisualEncoder(latent_dim, output_w, output_h)
+        self.encoder = VisualEncoder(latent_dim,bigger_dim, output_w, output_h)
         self.decoder = VisualDecoder(latent_dim, output_w, output_h)
 
     def forward(self, x):
