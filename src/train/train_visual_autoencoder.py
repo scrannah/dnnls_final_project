@@ -9,6 +9,7 @@ def train_visual_autoencoder(
     ):
 
     epoch_losses = []
+    epoch_counter = 0
 
     model.train()
 
@@ -35,13 +36,10 @@ def train_visual_autoencoder(
 
             running_loss += loss.item() * images.size(0)
 
-        epoch_loss = running_loss / len(train_dataloader.dataset)
-        epoch_losses.append(epoch_loss)
-        print(f"[Epoch {epoch+1}] AE Loss: {epoch_loss:.4f}")
-
 
         epoch_loss = running_loss / len(train_dataloader.dataset)
         epoch_losses.append(epoch_loss)
-        print(f"[Epoch {epoch+1}] AE Loss: {epoch_loss:.4f}") # this needs fixing to display correct epoch
+        epoch_counter = epoch_counter + 1
+        print(f"[Epoch {epoch_counter+1}] AE Loss: {epoch_loss:.4f}") # this needs fixing to display correct epoch
 
         return epoch_losses
