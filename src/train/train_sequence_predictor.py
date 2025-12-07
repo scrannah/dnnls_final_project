@@ -26,6 +26,7 @@ def train_sequence_predictor(
     val_bleu_values = []
     val_crossmodal_values = []
     val_ssim_values = []
+    epoch_counter = -1
 
     for epoch in range(num_epochs):
 
@@ -81,7 +82,8 @@ def train_sequence_predictor(
 
         epoch_loss = running_loss / len(train_dataloader.dataset)
         epoch_losses.append(epoch_loss)
-        print(f"[Epoch {epoch+1}] AE Loss: {epoch_loss:.4f}")
+        epoch_counter = epoch_counter + 1
+        print(f"[Epoch {epoch_counter}] AE Loss: {epoch_loss:.4f}")
 
     return {
     "epoch_losses": epoch_losses,
