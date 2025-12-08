@@ -4,6 +4,7 @@ def train_visual_autoencoder(
         train_dataloader,
         optimizer,
         criterion_images,
+        criterion_percep,
         device,
         num_epochs
     ):
@@ -25,11 +26,12 @@ def train_visual_autoencoder(
             x_content, _ = model(images)
 
             # Compute reconstruction loss, how does it compare to the actual image
-            loss = criterion_images(x_content, images) # I ONLY WANT CONTENT FOR VISUAL TRAINING, THIS TAKES CONTENT FROM THE DECODER ONLY
-
+            loss = criterion_images(x_content, images)
+            perceptual_loss = criterion_percep(x_content, images)# I ONLY WANT CONTENT FOR VISUAL TRAINING, THIS TAKES CONTENT FROM THE DECODER ONLY
+            backprop_loss = loss + perceptual_loss
             # Backpropagation
             optimizer.zero_grad()
-            loss.backward()
+            backprop_loss.backward()
             optimizer.step()
 
             running_loss += loss.item() * images.size(0)
