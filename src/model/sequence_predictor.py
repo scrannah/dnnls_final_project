@@ -26,6 +26,8 @@ class SequencePredictor(nn.Module):
             nn.Linear(gru_hidden_dim * 2, latent_dim),
             nn.ReLU()
         )
+        self.image_proj = nn.Linear(256, latent_dim)   # 256 → 16
+
 
         # --- 5. Decoders ---
         # (These predict the *next* item)
@@ -53,6 +55,7 @@ class SequencePredictor(nn.Module):
 
         # Run encoders
         z_v_flat = self.image_encoder(img_flat) # Shape: [b*s, latent]
+        z_v_flat = self.image_proj(z_v_flat) # projection layer for image ae 256 to 16
         _, hidden, cell = self.text_encoder(txt_flat) # Shape: [b*s, latent]
 
         # Combine
