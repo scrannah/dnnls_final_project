@@ -14,7 +14,7 @@ class SequencePredictor(nn.Module):
 
         # --- 2. Temporal Encoder ---
         # (This processes the sequence of pairs)
-        fusion_dim = latent_dim * 2 # z_visual + z_text
+        fusion_dim = latent_dim + latent_dim # z_visual + z_text
         self.temporal_rnn = nn.GRU(fusion_dim, latent_dim, batch_first=True)
 
         # --- 3. Attention ---
