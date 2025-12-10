@@ -82,14 +82,14 @@ class UNetVisualDecoder(nn.Module):
             nn.LeakyReLU(0.1)
         )
 
-        self.up2 = nn.ConvTranspose2d(32, 16, kernel_size=5, stride=2, padding=2, output_padding=1)
+        self.up2 = nn.ConvTranspose2d(32, 16, kernel_size=5, stride=2, padding=2, output_padding=(0,1))
         self.refine2 = nn.Sequential(
             nn.Conv2d(32 + 32, 32, kernel_size=3, padding=1),
             nn.GroupNorm(8, 32),
             nn.LeakyReLU(0.1)
         )
 
-        self.up1 = nn.ConvTranspose2d(16, 16, kernel_size=7, stride=2, padding=3, output_padding=1)
+        self.up1 = nn.ConvTranspose2d(16, 16, kernel_size=4, stride=2, padding=1, output_padding=1)
         self.refine1 = nn.Sequential(
             nn.Conv2d(16 + 16, 16, kernel_size=3, padding=1),
             nn.GroupNorm(8, 16),
@@ -124,7 +124,7 @@ class UNetVisualDecoder(nn.Module):
         return t[:, :, sh:sh+th, sw:sw+tw]
 
     def decode_context(self, x):
-        x = x.view(-1, 64, self.output_w, self.output_h)
+        x = x.view(-1, 64, self.output_h, self.output_w)
         x = self.decoder_conv(x)
         x = x[:, :, :self.imh, :self.imw]
         return x
