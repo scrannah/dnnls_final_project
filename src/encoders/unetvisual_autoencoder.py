@@ -52,6 +52,10 @@ class UNetVisualEncoder(nn.Module):
     def forward(self, x):
         z_context, _, _, _ = self.context_backbone(x)
         z_content, s1content, s2content, s3content = self.content_backbone(x)
+        print("s1:", s1content.shape)
+        print("s2:", s2content.shape)
+        print("s3:", s3content.shape)
+
         z = torch.cat((z_content, z_context), dim=1)
         z = self.projection(z)
         return z, s1content, s2content, s3content
@@ -109,10 +113,6 @@ class UNetVisualDecoder(nn.Module):
     def forward(self, z, s1, s2, s3):
         x = self.fc1(z)
         x_content = self.decode_content(x, s1, s2, s3)
-        print("s1:", s1.shape)
-        print("s2:", s2.shape)
-        print("s3:", s3.shape)
-
         x_context = self.decode_context(x)
         return x_content, x_context
 
