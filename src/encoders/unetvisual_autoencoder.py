@@ -130,7 +130,7 @@ class UNetVisualDecoder(nn.Module):
         return x
 
     def decode_content(self, x, s1, s2, s3):
-        x = x.view(-1, 64, self.output_w, self.output_h)
+        x = x.view(-1, 64, self.output_h, self.output_w)
 
         if x.shape[-2:] != s3.shape[-2:]:
             s3 = self._crop(s3, x.shape[-2:])
