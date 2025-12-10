@@ -132,23 +132,25 @@ class UNetVisualDecoder(nn.Module):
     def decode_content(self, x, s1, s2, s3):
         x = x.view(-1, 64, self.output_w, self.output_h)
 
-        x = self.up3(x)
         if x.shape[-2:] != s3.shape[-2:]:
             s3 = self._crop(s3, x.shape[-2:])
         x = torch.cat([x, s3], dim=1)
         x = self.refine3(x)
+        x = self.up3(x)
 
         x = self.up2(x)
         if x.shape[-2:] != s2.shape[-2:]:
             s2 = self._crop(s2, x.shape[-2:])
         x = torch.cat([x, s2], dim=1)
         x = self.refine2(x)
+        x = self.up2(x)
 
-        x = self.up1(x)
+
         if x.shape[-2:] != s1.shape[-2:]:
             s1 = self._crop(s1, x.shape[-2:])
         x = torch.cat([x, s1], dim=1)
         x = self.refine1(x)
+        x = self.up1(x)
 
         x = self.final_conv(x)
         x = self.activation(x)
@@ -165,8 +167,5 @@ class UNetVisualAutoencoder(nn.Module):
 
     def forward(self, x):
         z, s1, s2, s3 = self.encoder(x)
-        # x_hat = self.decoder(z, s1, s2, s3)
-        print("s1:", s1.shape)
-        print("s2:", s2.shape)
-        print("s3:", s3.shape)
-        return None
+        x_hat = self.decoder(z, s1, s2, s3)
+        return x_hat
