@@ -5,7 +5,7 @@ class UNetBackbone(nn.Module):
     """
       Main convolutional blocks for our CNN
     """
-    def __init__(self, latent_dim =16, output_w = 8, output_h = 16):  # remember to calculate output w h
+    def __init__(self, latent_dim =16, output_h = 8, output_w = 16):  # remember to calculate output w h
         super(UNetBackbone, self).__init__()
         # Encoder convolutional layers using a unet style
         self.block1 = nn.Sequential(nn.Conv2d(3, 16, kernel_size=7, stride=2, padding=3)
@@ -41,7 +41,7 @@ class UNetVisualEncoder(nn.Module):
       Encodes an image into a latent space representation. Note the two pathways
       to try to disentangle the mean pattern from the image
     """
-    def __init__(self, latent_dim=16,output_w = 8, output_h = 16):
+    def __init__(self, latent_dim=16,output_h = 8, output_w = 16):
         super(UNetVisualEncoder, self).__init__()
 
         self.context_backbone = UNetBackbone(latent_dim, output_w, output_h)
@@ -65,7 +65,7 @@ class UNetVisualDecoder(nn.Module):
     """
       Decodes a latent representation into a content image and a context image
     """
-    def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
+    def __init__(self, latent_dim=16, output_h = 8, output_w = 16):
         super(UNetVisualDecoder, self).__init__()
         self.imh = 60
         self.imw = 125
@@ -159,7 +159,7 @@ class UNetVisualDecoder(nn.Module):
 
 
 class UNetVisualAutoencoder(nn.Module):
-    def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
+    def __init__(self, latent_dim=16, output_h = 8, output_w = 16):
         super(UNetVisualAutoencoder, self).__init__()
         self.encoder = UNetVisualEncoder(latent_dim, output_w, output_h)
 
