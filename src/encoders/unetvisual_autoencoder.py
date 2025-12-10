@@ -166,4 +166,7 @@ class UNetVisualAutoencoder(nn.Module):
     def forward(self, x):
         z, s1, s2, s3 = self.encoder(x)
         # x_hat = self.decoder(z, s1, s2, s3)
+        print("s1:", s1.shape)
+        print("s2:", s2.shape)
+        print("s3:", s3.shape)
         return None
