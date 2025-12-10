@@ -75,29 +75,29 @@ class UNetVisualDecoder(nn.Module):
 
         self.fc1 = nn.Linear(latent_dim, self.flatten_dim)
 
-        self.up3 = nn.ConvTranspose2d(64, 64, kernel_size=3, stride=2, padding=1, output_padding=1)
+        self.up3 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.refine3 = nn.Sequential(
             nn.Conv2d(64 + 64, 64, kernel_size=3, padding=1),
             nn.GroupNorm(8, 64),
             nn.LeakyReLU(0.1)
         )
 
-        self.up2 = nn.ConvTranspose2d(64, 32, kernel_size=5, stride=2, padding=2, output_padding=1)
+        self.up2 = nn.ConvTranspose2d(32, 16, kernel_size=5, stride=2, padding=2, output_padding=1)
         self.refine2 = nn.Sequential(
             nn.Conv2d(32 + 32, 32, kernel_size=3, padding=1),
             nn.GroupNorm(8, 32),
             nn.LeakyReLU(0.1)
         )
 
-        self.up1 = nn.ConvTranspose2d(32, 16, kernel_size=7, stride=2, padding=3, output_padding=1)
+        self.up1 = nn.ConvTranspose2d(16, 16, kernel_size=7, stride=2, padding=3, output_padding=1)
         self.refine1 = nn.Sequential(
             nn.Conv2d(16 + 16, 16, kernel_size=3, padding=1),
             nn.GroupNorm(8, 16),
             nn.LeakyReLU(0.1)
         )
 
-        self.final_conv = nn.Conv2d(16, 3, kernel_size=1)
         self.activation = nn.Sigmoid()
+        self.final_conv = nn.Conv2d(16, 3, kernel_size=1)
 
         self.decoder_conv = nn.Sequential(
             nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),
