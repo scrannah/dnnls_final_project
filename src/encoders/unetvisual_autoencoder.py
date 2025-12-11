@@ -127,15 +127,15 @@ class UNetVisualDecoder(nn.Module):
         x = x.view(-1, 64, self.output_h, self.output_w)
         x = self.decoder_conv(x)
         x = x[:, :, :self.imh, :self.imw]
-        print("context shape", x.shape)
+        # print("context shape", x.shape)
         return x
 
     def decode_content(self, x, s1, s2, s3):
         x = x.view(-1, 64, self.output_h, self.output_w)
 
 
-        # x = self.up3(x)
-        print(x.shape)
+        # x = self.up3(x) # dont need to upsample 3 its already bottleneck size
+        # print(x.shape)
         if x.shape[-2:] != s3.shape[-2:]:
             s3 = self._crop(s3, x.shape[-2:])
         x = torch.cat([x, s3], dim=1)
@@ -143,7 +143,7 @@ class UNetVisualDecoder(nn.Module):
 
 
         x = self.up2(x)
-        print("after up2", x.shape)
+        # print("after up2", x.shape)
         if x.shape[-2:] != s2.shape[-2:]:
             s2 = self._crop(s2, x.shape[-2:])
         x = torch.cat([x, s2], dim=1)
@@ -151,7 +151,7 @@ class UNetVisualDecoder(nn.Module):
 
 
         x = self.up1(x)
-        print("after up1", x.shape)
+        # print("after up1", x.shape)
         if x.shape[-2:] != s1.shape[-2:]:
             x = x[:, :, :s1.shape[2], :s1.shape[3]]
 
@@ -162,7 +162,7 @@ class UNetVisualDecoder(nn.Module):
         x = self.final_conv(x)
         x = self.activation(x)
 
-        print("content shape", x.shape)
+        # print("content shape", x.shape)
         return x
 
 
