@@ -133,7 +133,7 @@ class UNetVisualDecoder(nn.Module):
         x = x.view(-1, 64, self.output_h, self.output_w)
 
 
-        x = self.up3(x)
+        # x = self.up3(x)
         if x.shape[-2:] != s3.shape[-2:]:
             s3 = self._crop(s3, x.shape[-2:])
         x = torch.cat([x, s3], dim=1)
