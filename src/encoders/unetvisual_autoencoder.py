@@ -127,6 +127,7 @@ class UNetVisualDecoder(nn.Module):
         x = x.view(-1, 64, self.output_h, self.output_w)
         x = self.decoder_conv(x)
         x = x[:, :, :self.imh, :self.imw]
+        print("context shape", x.shape)
         return x
 
     def decode_content(self, x, s1, s2, s3):
@@ -161,6 +162,7 @@ class UNetVisualDecoder(nn.Module):
         x = self.final_conv(x)
         x = self.activation(x)
         x = x[:, :, :self.imh, :self.imw]
+        print("content shape", x.shape)
         return x
 
 
