@@ -89,7 +89,7 @@ class UNetVisualDecoder(nn.Module):
             nn.LeakyReLU(0.1)
         )
 
-        self.up1 = nn.ConvTranspose2d(32, 16, kernel_size=4, stride=2, padding=1, output_padding=1)
+        self.up1 = nn.ConvTranspose2d(32, 16, kernel_size=4, stride=2, padding=1, output_padding=(0,1))
         self.refine1 = nn.Sequential(
             nn.Conv2d(16 + 16, 16, kernel_size=3, padding=1),
             nn.GroupNorm(8, 16),
