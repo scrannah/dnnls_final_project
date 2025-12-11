@@ -95,7 +95,7 @@ class UNetVisualDecoder(nn.Module):
             nn.GroupNorm(8, 16),
             nn.LeakyReLU(0.1)
         )
-
+        self.final_up = nn.ConvTranspose2d(16, 16,kernel_size=4,stride=2,padding=1,output_padding=(0, 1))
         self.activation = nn.Sigmoid()
         self.final_conv = nn.Conv2d(16, 3, kernel_size=1)
 
@@ -157,11 +157,11 @@ class UNetVisualDecoder(nn.Module):
 
         x = torch.cat([x, s1], dim=1)
         x = self.refine1(x)
-
-
+        x = self.final_up(x)
+        x = x[:, :, :self.imh, :self.imw]
         x = self.final_conv(x)
         x = self.activation(x)
-        x = x[:, :, :self.imh, :self.imw]
+
         print("content shape", x.shape)
         return x
 
@@ -175,5 +175,5 @@ class UNetVisualAutoencoder(nn.Module):
 
     def forward(self, x):
         z, s1, s2, s3 = self.encoder(x)
-        x_hat = self.decoder(z, s1, s2, s3)
+        x_hat, _, _, _ = self.decoder(z, s1, s2, s3)
         return x_hat
