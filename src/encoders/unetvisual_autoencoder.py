@@ -175,5 +175,5 @@ class UNetVisualAutoencoder(nn.Module):
 
     def forward(self, x):
         z, s1, s2, s3 = self.encoder(x)
-        x_hat, _, _, _ = self.decoder(z, s1, s2, s3)
+        x_hat = self.decoder(z, s1, s2, s3)
         return x_hat
