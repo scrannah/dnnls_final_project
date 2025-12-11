@@ -142,6 +142,7 @@ class UNetVisualDecoder(nn.Module):
 
 
         x = self.up2(x)
+        print("after up2", x.shape)
         if x.shape[-2:] != s2.shape[-2:]:
             s2 = self._crop(s2, x.shape[-2:])
         x = torch.cat([x, s2], dim=1)
@@ -149,6 +150,7 @@ class UNetVisualDecoder(nn.Module):
 
 
         x = self.up1(x)
+        print("after up1", x.shape)
         if x.shape[-2:] != s1.shape[-2:]:
             s1 = self._crop(s1, x.shape[-2:])
         x = torch.cat([x, s1], dim=1)
