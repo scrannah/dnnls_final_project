@@ -75,7 +75,7 @@ class UNetVisualDecoder(nn.Module):
 
         self.fc1 = nn.Linear(latent_dim, self.flatten_dim)
 
-        self.up3 = nn.ConvTranspose2d(64,64 , kernel_size=3, stride=2, padding=1, output_padding=1)
+        self.up3 = nn.ConvTranspose2d(64, 64, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.refine3 = nn.Sequential(
             nn.Conv2d(64 + 64, 64, kernel_size=3, padding=1),
             nn.GroupNorm(8, 64),
@@ -134,6 +134,7 @@ class UNetVisualDecoder(nn.Module):
 
 
         # x = self.up3(x)
+        print(x.shape)
         if x.shape[-2:] != s3.shape[-2:]:
             s3 = self._crop(s3, x.shape[-2:])
         x = torch.cat([x, s3], dim=1)
