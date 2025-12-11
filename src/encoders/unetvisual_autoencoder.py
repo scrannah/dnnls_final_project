@@ -75,21 +75,21 @@ class UNetVisualDecoder(nn.Module):
 
         self.fc1 = nn.Linear(latent_dim, self.flatten_dim)
 
-        self.up3 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1)
+        self.up3 = nn.ConvTranspose2d(64,64 , kernel_size=3, stride=2, padding=1, output_padding=1)
         self.refine3 = nn.Sequential(
             nn.Conv2d(64 + 64, 64, kernel_size=3, padding=1),
             nn.GroupNorm(8, 64),
             nn.LeakyReLU(0.1)
         )
 
-        self.up2 = nn.ConvTranspose2d(32, 16, kernel_size=5, stride=2, padding=2, output_padding=(0,1))
+        self.up2 = nn.ConvTranspose2d(64, 32, kernel_size=5, stride=2, padding=2, output_padding=(0,1))
         self.refine2 = nn.Sequential(
             nn.Conv2d(32 + 32, 32, kernel_size=3, padding=1),
             nn.GroupNorm(8, 32),
             nn.LeakyReLU(0.1)
         )
 
-        self.up1 = nn.ConvTranspose2d(16, 16, kernel_size=4, stride=2, padding=1, output_padding=1)
+        self.up1 = nn.ConvTranspose2d(32, 16, kernel_size=4, stride=2, padding=1, output_padding=1)
         self.refine1 = nn.Sequential(
             nn.Conv2d(16 + 16, 16, kernel_size=3, padding=1),
             nn.GroupNorm(8, 16),
@@ -117,7 +117,7 @@ class UNetVisualDecoder(nn.Module):
         return x_content, x_context
 
     def _crop(self, t, target_hw):
-        H, W = t.shape[-2:]
+        H, W = t.shape[-2:] # -2 is last two dimensions of tensor
         th, tw = target_hw
         sh = (H - th) // 2
         sw = (W - tw) // 2
@@ -132,25 +132,27 @@ class UNetVisualDecoder(nn.Module):
     def decode_content(self, x, s1, s2, s3):
         x = x.view(-1, 64, self.output_h, self.output_w)
 
+
+        x = self.up3(x)
         if x.shape[-2:] != s3.shape[-2:]:
             s3 = self._crop(s3, x.shape[-2:])
         x = torch.cat([x, s3], dim=1)
         x = self.refine3(x)
-        x = self.up3(x)
 
 
+        x = self.up2(x)
         if x.shape[-2:] != s2.shape[-2:]:
             s2 = self._crop(s2, x.shape[-2:])
         x = torch.cat([x, s2], dim=1)
         x = self.refine2(x)
-        x = self.up2(x)
 
 
+        x = self.up1(x)
         if x.shape[-2:] != s1.shape[-2:]:
             s1 = self._crop(s1, x.shape[-2:])
         x = torch.cat([x, s1], dim=1)
         x = self.refine1(x)
-        x = self.up1(x)
+
 
         x = self.final_conv(x)
         x = self.activation(x)
