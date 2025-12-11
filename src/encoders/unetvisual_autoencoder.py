@@ -164,9 +164,9 @@ class UNetVisualDecoder(nn.Module):
 class UNetVisualAutoencoder(nn.Module):
     def __init__(self, latent_dim=16, output_h = 8, output_w = 16):
         super(UNetVisualAutoencoder, self).__init__()
-        self.encoder = UNetVisualEncoder(latent_dim, output_w, output_h)
+        self.encoder = UNetVisualEncoder(latent_dim, output_h, output_w)
 
-        self.decoder = UNetVisualDecoder(latent_dim, output_w, output_h)
+        self.decoder = UNetVisualDecoder(latent_dim, output_h, output_w)
 
     def forward(self, x):
         z, s1, s2, s3 = self.encoder(x)
