@@ -36,6 +36,7 @@ def train_visual_autoencoder(
         kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(),dim=1).mean()
 
         kl_weight = min(beta, beta * global_step / kl_anneal_epoch)
+        print(kl_weight)
 
         backprop_loss = loss + kl_weight*kl_loss + lambda_percep*perceptual_loss # + ctxloss
 
@@ -55,7 +56,7 @@ def train_visual_autoencoder(
     epoch_loss = running_loss / len(train_dataloader.dataset)
     kl_loss = running_kl / len(train_dataloader.dataset)
     epoch_losses.append(epoch_loss)
-    print(f"[Epoch {global_step}] AE Loss: {epoch_loss:.4f}")
+    print(f" AE Loss: {epoch_loss:.4f}")
     print(f"Recon: {loss.item():.4f} | KL: {kl_loss.item():.4f}")
 
 
