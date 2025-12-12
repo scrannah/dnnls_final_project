@@ -11,7 +11,7 @@ def train_visual_autoencoder(
         kl_anneal_epoch,
         lambda_percep,
         device,
-        num_epochs
+        global_step
     ):
 
     epoch_losses = []
@@ -35,7 +35,7 @@ def train_visual_autoencoder(
         perceptual_loss = criterion_percep(x_content, images)
         kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(),dim=1).mean()
 
-        kl_weight = 0.05
+        kl_weight = min(beta, beta * global_step / kl_anneal_epoch)
 
         backprop_loss = loss + kl_weight*kl_loss + lambda_percep*perceptual_loss + ctxloss
 
@@ -46,6 +46,8 @@ def train_visual_autoencoder(
 
         running_loss += backprop_loss.item() * images.size(0)
         running_kl += kl_loss * images.size(0)
+
+        global_step += 1
         #print(f"KL weight: {kl_weight}")
         #print(f"Effective KL: {(kl_weight * kl_loss).item()}")
 
@@ -53,8 +55,8 @@ def train_visual_autoencoder(
     epoch_loss = running_loss / len(train_dataloader.dataset)
     kl_loss = running_kl / len(train_dataloader.dataset)
     epoch_losses.append(epoch_loss)
-    print(f"[Epoch {epoch+1}] AE Loss: {epoch_loss:.4f}")
+    print(f"[Epoch {global_step}] AE Loss: {epoch_loss:.4f}")
     print(f"Recon: {loss.item():.4f} | KL: {kl_loss.item():.4f}")
 
 
-    return epoch_losses
+    return epoch_losses, global_step
