@@ -37,7 +37,7 @@ def train_visual_autoencoder(
 
         kl_weight = min(beta, beta * global_step / kl_anneal_epoch)
 
-        backprop_loss = loss + kl_weight*kl_loss + lambda_percep*perceptual_loss # + ctxloss
+        backprop_loss = loss + lambda_percep*perceptual_loss # + ctxloss kl_weight*kl_loss +
 
         # Backpropagation
         optimizer.zero_grad()
@@ -53,10 +53,10 @@ def train_visual_autoencoder(
 
 
     epoch_loss = running_loss / len(train_dataloader.dataset)
-    kl_loss = running_kl / len(train_dataloader.dataset)
+    # kl_loss = running_kl / len(train_dataloader.dataset)
     epoch_losses.append(epoch_loss)
     print(f" AE Loss: {epoch_loss:.4f}")
-    print(f"Recon: {loss.item():.4f} | KL: {kl_loss.item():.4f}")
+    # print(f"Recon: {loss.item():.4f} | KL: {kl_loss.item():.4f}")
 
 
     return epoch_losses, global_step
