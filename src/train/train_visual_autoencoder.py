@@ -36,7 +36,6 @@ def train_visual_autoencoder(
         kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(),dim=1).mean()
 
         kl_weight = min(beta, beta * global_step / kl_anneal_epoch)
-        print(kl_weight)
 
         backprop_loss = loss + kl_weight*kl_loss + lambda_percep*perceptual_loss # + ctxloss
 
