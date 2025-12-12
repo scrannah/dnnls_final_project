@@ -44,7 +44,7 @@ def train_visual_autoencoder(
             optimizer.step()
 
             running_loss += backprop_loss.item() * images.size(0)
-            running_kl += kl_loss.item() * images.size(0)
+            running_kl += kl_loss * images.size(0)
 
 
         epoch_loss = running_loss / len(train_dataloader.dataset)
