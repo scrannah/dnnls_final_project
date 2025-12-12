@@ -8,6 +8,7 @@ def train_visual_autoencoder(
         criterion_percep,
         criterion_ctx,
         beta,
+        kl_anneal_epoch,
         device,
         num_epochs
     ):
@@ -35,8 +36,9 @@ def train_visual_autoencoder(
             perceptual_loss = criterion_percep(x_content, images)
             kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(),dim=1).mean()
 
+            kl_weight = min(beta, beta * epoch / kl_anneal_epoch)
 
-            backprop_loss = loss + beta*kl_loss # + perceptual_loss + ctxloss
+            backprop_loss = loss + kl_weight*kl_loss # + perceptual_loss + ctxloss
 
             # Backpropagation
             optimizer.zero_grad()
