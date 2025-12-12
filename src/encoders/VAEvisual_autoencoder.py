@@ -1,12 +1,12 @@
 import torch
 import torch.nn as nn
 
-class Backbone(nn.Module):
+class VAEBackbone(nn.Module):
     """
       Main convolutional blocks for our CNN
     """
     def __init__(self, latent_dim=16, output_w = 8, output_h = 16):  # remember to calculate output w h
-        super(Backbone, self).__init__()
+        super(VAEBackbone, self).__init__()
         # Encoder convolutional layers
         self.encoder_conv = nn.Sequential(
             nn.Conv2d(3, 16, 7, stride=2, padding=3),
@@ -34,16 +34,16 @@ class Backbone(nn.Module):
         return z
 
 
-class VisualEncoder(nn.Module):
+class VAEVisualEncoder(nn.Module):
     """
       Encodes an image into a latent space representation. Note the two pathways
       to try to disentangle the mean pattern from the image
     """
     def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
-        super(VisualEncoder, self).__init__()
+        super(VAEVisualEncoder, self).__init__()
 
-        self.context_backbone = Backbone(latent_dim, output_w, output_h) # backbone is used twice to extract content AND context
-        self.content_backbone = Backbone(latent_dim, output_w, output_h)
+        self.context_backbone = VAEBackbone(latent_dim, output_w, output_h) # backbone is used twice to extract content AND context
+        self.content_backbone = VAEBackbone(latent_dim, output_w, output_h)
 
         self.fc_mu = nn.Linear(2 * latent_dim, latent_dim)
         self.fc_logvar = nn.Linear(2 * latent_dim, latent_dim)
@@ -67,12 +67,12 @@ class VisualEncoder(nn.Module):
         return z, mu, logvar
 
 
-class VisualDecoder(nn.Module):
+class VAEVisualDecoder(nn.Module):
     """
       Decodes a latent representation into a content image and a context image
     """
     def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
-        super(VisualDecoder, self).__init__()
+        super(VAEVisualDecoder, self).__init__()
         self.imh = 60  # image height TRANSFORM RESIZE
         self.imw = 125 # image width
         self.flatten_dim = 64 * output_w * output_h
@@ -109,11 +109,11 @@ class VisualDecoder(nn.Module):
         return x
 
 
-class VisualAutoencoder(nn.Module):
+class VAEVisualAutoencoder(nn.Module):
     def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
-        super(VisualAutoencoder, self).__init__()
-        self.encoder = VisualEncoder(latent_dim, output_w, output_h)
-        self.decoder = VisualDecoder(latent_dim, output_w, output_h)
+        super(VAEVisualAutoencoder, self).__init__()
+        self.encoder = VAEVisualEncoder(latent_dim, output_w, output_h)
+        self.decoder = VAEVisualDecoder(latent_dim, output_w, output_h)
 
     def forward(self, x):
         z, mu, logvar = self.encoder(x)
