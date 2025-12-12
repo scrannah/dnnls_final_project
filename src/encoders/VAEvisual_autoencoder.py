@@ -27,32 +27,45 @@ class Backbone(nn.Module):
         # Latent space layers
         self.fc1 = nn.Sequential(nn.Linear(self.flatten_dim, latent_dim), nn.ReLU())
 
-
     def forward(self, x):
         x = self.encoder_conv(x)
         x = x.view(-1, self.flatten_dim)  # flatten for linear layer
         z = self.fc1(x)
         return z
 
+
 class VisualEncoder(nn.Module):
     """
       Encodes an image into a latent space representation. Note the two pathways
       to try to disentangle the mean pattern from the image
     """
-    def __init__(self, latent_dim=16,output_w = 8, output_h = 16):
+    def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
         super(VisualEncoder, self).__init__()
 
         self.context_backbone = Backbone(latent_dim, output_w, output_h) # backbone is used twice to extract content AND context
         self.content_backbone = Backbone(latent_dim, output_w, output_h)
 
-        self.projection = nn.Linear(2*latent_dim, latent_dim)
+        self.fc_mu = nn.Linear(2 * latent_dim, latent_dim)
+        self.fc_logvar = nn.Linear(2 * latent_dim, latent_dim)
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)
+        return mu + eps * std
 
     def forward(self, x):
         z_context = self.context_backbone(x)
         z_content = self.content_backbone(x)
+
         z = torch.cat((z_content, z_context), dim=1)
-        z = self.projection(z)
-        return z
+
+        mu = self.fc_mu(z)
+        logvar = self.fc_logvar(z)
+
+        z = self.reparameterize(mu, logvar)
+
+        return z, mu, logvar
+
 
 class VisualDecoder(nn.Module):
     """
@@ -82,27 +95,27 @@ class VisualDecoder(nn.Module):
       )
 
     def forward(self, z):
-      x = self.fc1(z)
+        x = self.fc1(z)
 
-      x_content = self.decode_image(x)
-      x_context = self.decode_image(x)
+        x_content = self.decode_image(x)
+        x_context = self.decode_image(x)
 
-      return x_content, x_context
+        return x_content, x_context
 
     def decode_image(self, x):
-      x = x.view(-1, 64, self.output_w, self.output_h)      # reshape to conv feature map
-      x = self.decoder_conv(x)
-      x = x[:, :, :self.imh, :self.imw]          # crop to original size if needed
-      return x
+        x = x.view(-1, 64, self.output_w, self.output_h)      # reshape to conv feature map
+        x = self.decoder_conv(x)
+        x = x[:, :, :self.imh, :self.imw]          # crop to original size if needed
+        return x
 
-class VisualAutoencoder( nn.Module):
+
+class VisualAutoencoder(nn.Module):
     def __init__(self, latent_dim=16, output_w = 8, output_h = 16):
         super(VisualAutoencoder, self).__init__()
-        self.encoder = VisualEncoder(latent_dim,output_w, output_h)
+        self.encoder = VisualEncoder(latent_dim, output_w, output_h)
         self.decoder = VisualDecoder(latent_dim, output_w, output_h)
 
     def forward(self, x):
-        z = self.encoder(x)
-        x_hat = self.decoder(z)
-        return x_hat
-
+        z, mu, logvar = self.encoder(x)
+        x_content, x_context = self.decoder(z)
+        return x_content, x_context, mu, logvar
