@@ -15,12 +15,14 @@ def train_visual_autoencoder(
     ):
 
     epoch_losses = []
+    epoch_perceploss = []
     model.train()
 
-
-    running_loss = 0.0
-    running_kl = 0.0
     for epoch in range(num_epochs):
+
+        running_loss = 0.0
+        running_percep = 0.0
+
 
         for images in train_dataloader:
 
@@ -46,6 +48,8 @@ def train_visual_autoencoder(
             optimizer.step()
 
             running_loss += backprop_loss.item() * images.size(0)
+            running_percep += perceptual_loss.item() * images.size(0)
+
             # running_kl += kl_loss * images.size(0)
 
 
@@ -56,8 +60,12 @@ def train_visual_autoencoder(
         epoch_loss = running_loss / len(train_dataloader.dataset)
         # kl_loss = running_kl / len(train_dataloader.dataset)
         epoch_losses.append(epoch_loss)
-        print(f" AE Loss: {epoch_loss:.4f}")
+        print(f"[Epoch {epoch+1}]  AE Loss: {epoch_loss:.4f}")
+        avg_percep = epoch_perceploss / len(train_dataloader.dataset)
+        epoch_perceploss.append(avg_percep)
+        print(f"[Epoch {epoch+1}] Perceptual Loss: {avg_percep:.4f}")
         # print(f"Recon: {loss.item():.4f} | KL: {kl_loss.item():.4f}")
 
 
-    return epoch_losses
+        return epoch_losses, epoch_perceploss
+
