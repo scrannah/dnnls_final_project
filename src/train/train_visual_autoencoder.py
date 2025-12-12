@@ -48,6 +48,8 @@ def train_visual_autoencoder(
 
             running_loss += backprop_loss.item() * images.size(0)
             running_kl += kl_loss * images.size(0)
+            print(f"KL weight: {kl_weight}")
+            print(f"Effective KL: {(kl_weight * kl_loss).item()}")
 
 
         epoch_loss = running_loss / len(train_dataloader.dataset)
