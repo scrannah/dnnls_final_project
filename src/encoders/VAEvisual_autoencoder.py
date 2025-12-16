@@ -48,7 +48,7 @@ class VAEVisualEncoder(nn.Module):
         self.fc_mu = nn.Linear(2 * latent_dim, latent_dim)
         self.fc_logvar = nn.Linear(2 * latent_dim, latent_dim)
 
-    def reparameterize(self, mu, logvar):
+    def reparameterise(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
@@ -62,7 +62,7 @@ class VAEVisualEncoder(nn.Module):
         mu = self.fc_mu(z)
         logvar = self.fc_logvar(z)
 
-        z = self.reparameterize(mu, logvar)
+        z = self.reparameterise(mu, logvar)
 
         return z, mu, logvar
 
