@@ -1,5 +1,6 @@
 import torch
 
+
 def train_visual_autoencoder(
         model,
         train_dataloader,
@@ -12,8 +13,7 @@ def train_visual_autoencoder(
         lambda_percep,
         device,
         num_epochs=1
-    ):
-
+):
     epoch_losses = []
     epoch_perceploss = []
     model.train()
@@ -23,9 +23,7 @@ def train_visual_autoencoder(
         running_loss = 0.0
         running_percep = 0.0
 
-
         for images in train_dataloader:
-
             # Move batch of images to device
             images = images.to(device)
 
@@ -40,7 +38,7 @@ def train_visual_autoencoder(
 
             # kl_weight = min(beta, beta * global_step / kl_anneal_epoch)
 
-            backprop_loss = loss + lambda_percep*perceptual_loss + ctxloss
+            backprop_loss = loss + lambda_percep * perceptual_loss + ctxloss
 
             # Backpropagation
             optimizer.zero_grad()
@@ -52,20 +50,16 @@ def train_visual_autoencoder(
 
             # running_kl += kl_loss * images.size(0)
 
-
-            #print(f"KL weight: {kl_weight}")
-            #print(f"Effective KL: {(kl_weight * kl_loss).item()}")
-
+            # print(f"KL weight: {kl_weight}")
+            # print(f"Effective KL: {(kl_weight * kl_loss).item()}")
 
         epoch_loss = running_loss / len(train_dataloader.dataset)
         # kl_loss = running_kl / len(train_dataloader.dataset)
         epoch_losses.append(epoch_loss)
-        print(f"[Epoch {epoch+1}]  AE Loss: {epoch_loss:.4f}")
+        print(f"[Epoch {epoch + 1}]  AE Loss: {epoch_loss:.4f}")
         avg_percep = epoch_perceploss / len(train_dataloader.dataset)
         epoch_perceploss.append(avg_percep)
-        print(f"[Epoch {epoch+1}] Perceptual Loss: {avg_percep:.4f}")
+        print(f"[Epoch {epoch + 1}] Perceptual Loss: {avg_percep:.4f}")
         # print(f"Recon: {loss.item():.4f} | KL: {kl_loss.item():.4f}")
 
-
         return epoch_losses, epoch_perceploss
-

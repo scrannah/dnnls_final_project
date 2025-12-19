@@ -1,24 +1,26 @@
 import torch
 import torch.nn as nn
 
+
 class UNetBackbone(nn.Module):
     """
       Main convolutional blocks for our CNN
     """
-    def __init__(self, latent_dim =16, output_h = 8, output_w = 16):  # remember to calculate output w h
+
+    def __init__(self, latent_dim=16, output_h=8, output_w=16):  # remember to calculate output w h
         super(UNetBackbone, self).__init__()
         # Encoder convolutional layers using a unet style
         self.block1 = nn.Sequential(nn.Conv2d(3, 16, kernel_size=7, stride=2, padding=3)
-                                    ,nn.GroupNorm(8, 16)
-                                    ,nn.LeakyReLU(0.1)
+                                    , nn.GroupNorm(8, 16)
+                                    , nn.LeakyReLU(0.1)
                                     )
-        self.block2 = nn.Sequential(nn.Conv2d(16,32, kernel_size=5, stride=2, padding=2)
-                                    ,nn.GroupNorm(8,32)
-                                    ,nn.LeakyReLU(0.1)
+        self.block2 = nn.Sequential(nn.Conv2d(16, 32, kernel_size=5, stride=2, padding=2)
+                                    , nn.GroupNorm(8, 32)
+                                    , nn.LeakyReLU(0.1)
                                     )
-        self.block3 = nn.Sequential(nn.Conv2d(32,64, kernel_size=3, stride=2, padding=1)
-                                    ,nn.GroupNorm(8,64)
-                                    ,nn.LeakyReLU(0.1)
+        self.block3 = nn.Sequential(nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1)
+                                    , nn.GroupNorm(8, 64)
+                                    , nn.LeakyReLU(0.1)
                                     )
 
         # Calculate flattened dimension for linear layer
@@ -26,14 +28,13 @@ class UNetBackbone(nn.Module):
         # Latent space layers
         self.fc1 = nn.Sequential(nn.Linear(self.flatten_dim, latent_dim), nn.ReLU())
 
-
     def forward(self, x):
         skip1 = self.block1(x)
         skip2 = self.block2(skip1)
         skip3 = self.block3(skip2)
         x = skip3.view(-1, self.flatten_dim)  # flatten for linear layer
         z = self.fc1(x)
-        return z, skip1, skip2, skip3 # by returning these skips we give the decoder more to work with
+        return z, skip1, skip2, skip3  # by returning these skips we give the decoder more to work with
 
 
 class UNetVisualEncoder(nn.Module):
@@ -41,13 +42,14 @@ class UNetVisualEncoder(nn.Module):
       Encodes an image into a latent space representation. Note the two pathways
       to try to disentangle the mean pattern from the image
     """
-    def __init__(self, latent_dim=16,output_h = 8, output_w = 16):
+
+    def __init__(self, latent_dim=16, output_h=8, output_w=16):
         super(UNetVisualEncoder, self).__init__()
 
         self.context_backbone = UNetBackbone(latent_dim, output_w, output_h)
         self.content_backbone = UNetBackbone(latent_dim, output_w, output_h)
 
-        self.projection = nn.Linear(2*latent_dim, latent_dim)
+        self.projection = nn.Linear(2 * latent_dim, latent_dim)
 
     def forward(self, x):
         z_context, _, _, _ = self.context_backbone(x)
@@ -65,7 +67,8 @@ class UNetVisualDecoder(nn.Module):
     """
       Decodes a latent representation into a content image and a context image
     """
-    def __init__(self, latent_dim=16, output_h = 8, output_w = 16):
+
+    def __init__(self, latent_dim=16, output_h=8, output_w=16):
         super(UNetVisualDecoder, self).__init__()
         self.imh = 60
         self.imw = 125
@@ -82,20 +85,20 @@ class UNetVisualDecoder(nn.Module):
             nn.LeakyReLU(0.1)
         )
 
-        self.up2 = nn.ConvTranspose2d(64, 32, kernel_size=5, stride=2, padding=2, output_padding=(0,1))
+        self.up2 = nn.ConvTranspose2d(64, 32, kernel_size=5, stride=2, padding=2, output_padding=(0, 1))
         self.refine2 = nn.Sequential(
             nn.Conv2d(32 + 32, 32, kernel_size=3, padding=1),
             nn.GroupNorm(8, 32),
             nn.LeakyReLU(0.1)
         )
 
-        self.up1 = nn.ConvTranspose2d(32, 16, kernel_size=4, stride=2, padding=1, output_padding=(0,1))
+        self.up1 = nn.ConvTranspose2d(32, 16, kernel_size=4, stride=2, padding=1, output_padding=(0, 1))
         self.refine1 = nn.Sequential(
             nn.Conv2d(16 + 16, 16, kernel_size=3, padding=1),
             nn.GroupNorm(8, 16),
             nn.LeakyReLU(0.1)
         )
-        self.final_up = nn.ConvTranspose2d(16, 16,kernel_size=4,stride=2,padding=1,output_padding=(0, 1))
+        self.final_up = nn.ConvTranspose2d(16, 16, kernel_size=4, stride=2, padding=1, output_padding=(0, 1))
         self.activation = nn.Sigmoid()
         self.final_conv = nn.Conv2d(16, 3, kernel_size=1)
 
@@ -117,11 +120,11 @@ class UNetVisualDecoder(nn.Module):
         return x_content, x_context
 
     def _crop(self, t, target_hw):
-        H, W = t.shape[-2:] # -2 is last two dimensions of tensor
+        H, W = t.shape[-2:]  # -2 is last two dimensions of tensor
         th, tw = target_hw
         sh = (H - th) // 2
         sw = (W - tw) // 2
-        return t[:, :, sh:sh+th, sw:sw+tw]
+        return t[:, :, sh:sh + th, sw:sw + tw]
 
     def decode_context(self, x):
         x = x.view(-1, 64, self.output_h, self.output_w)
@@ -133,7 +136,6 @@ class UNetVisualDecoder(nn.Module):
     def decode_content(self, x, s1, s2, s3):
         x = x.view(-1, 64, self.output_h, self.output_w)
 
-
         # x = self.up3(x) # dont need to upsample 3 its already bottleneck size
         # print(x.shape)
         if x.shape[-2:] != s3.shape[-2:]:
@@ -141,14 +143,12 @@ class UNetVisualDecoder(nn.Module):
         x = torch.cat([x, s3], dim=1)
         x = self.refine3(x)
 
-
         x = self.up2(x)
         # print("after up2", x.shape)
         if x.shape[-2:] != s2.shape[-2:]:
             s2 = self._crop(s2, x.shape[-2:])
         x = torch.cat([x, s2], dim=1)
         x = self.refine2(x)
-
 
         x = self.up1(x)
         # print("after up1", x.shape)
@@ -167,7 +167,7 @@ class UNetVisualDecoder(nn.Module):
 
 
 class UNetVisualAutoencoder(nn.Module):
-    def __init__(self, latent_dim=16, output_h = 8, output_w = 16):
+    def __init__(self, latent_dim=16, output_h=8, output_w=16):
         super(UNetVisualAutoencoder, self).__init__()
         self.encoder = UNetVisualEncoder(latent_dim, output_h, output_w)
 

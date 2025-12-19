@@ -3,10 +3,10 @@ import torch.nn as nn
 from src.attention.attention import Attention
 
 
-class SequencePredictor(nn.Module):
+class CMSequencePredictor(nn.Module):
     def __init__(self, visual_autoencoder, text_autoencoder, latent_dim,
                  gru_hidden_dim):
-        super(SequencePredictor, self).__init__()
+        super(CMSequencePredictor, self).__init__()
 
         # --- 1. Static Encoders ---
         # (These process one pair at a time)
@@ -53,11 +53,11 @@ class SequencePredictor(nn.Module):
         txt_flat = text_seq.view(batch_size * seq_len, -1)  # -1 infers text_len
 
         # Run encoders
-        z_v_flat = self.image_encoder(img_flat)  # Shape: [b*s, latent]
-        _, hidden, cell = self.text_encoder(txt_flat)  # Shape: [b*s, latent]
+        z_v_flat, feature_map = self.image_encoder(img_flat)  # Shape: [b*s, latent]
+        outputs, hidden, cell = self.text_encoder(txt_flat)  # Shape: [b*s, latent]
 
         # Combine
-        z_fusion_flat = torch.cat((z_v_flat, hidden.squeeze(0)), dim=1)  # Shape: [b*s, fusion_dim]
+        # z_fusion_flat = torch.cat((z_v_flat, hidden.squeeze(0)), dim=1)  # Shape: [b*s, fusion_dim]
 
         # "Un-flatten" back into a sequence
         z_fusion_seq = z_fusion_flat.view(batch_size, seq_len, -1)  # Shape: [b, s, fusion_dim]

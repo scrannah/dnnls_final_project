@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
+
 class PerceptualLoss(nn.Module):
     def __init__(self, device):
         super(PerceptualLoss, self).__init__()

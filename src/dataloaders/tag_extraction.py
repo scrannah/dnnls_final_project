@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 
+
 def parse_gdi_text(text):
     """Parse GDI formatted text into structured data"""
     soup = BeautifulSoup(text, 'html.parser')

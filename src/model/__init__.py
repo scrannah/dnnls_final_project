@@ -1,1 +1,2 @@
 from .sequence_predictor import SequencePredictor
+from. cmsequence_predictor import CMSequencePredictor

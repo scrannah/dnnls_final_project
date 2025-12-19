@@ -1,7 +1,9 @@
 import torch
 import os
 
-def save_checkpoint_to_drive(model, optimizer, epoch, loss, filename="autoencoder_checkpoint.pth"): # the name can be replaced to image/text checkpoint when function called
+
+def save_checkpoint_to_drive(model, optimizer, epoch, loss,
+                             filename="autoencoder_checkpoint.pth"):  # the name can be replaced to image/text checkpoint when function called
     """
     Saves the checkpoint directly to a specified folder in your mounted Google Drive.
     """
