@@ -57,8 +57,8 @@ class CMSequencePredictor(nn.Module):
         txt_flat = text_seq.view(batch_size * seq_len, -1)  # -1 infers text_len
 
         # Run encoders
-        z_v_flat, feature_map = self.image_encoder(img_flat)  # Shape: [b*s, latent]
-        outputs, hidden, cell = self.text_encoder(txt_flat)   # Shape: [b*s, latent]
+        z_v_flat = self.image_encoder(img_flat)  # Shape: [b*s, latent]
+        _, hidden, cell = self.text_encoder(txt_flat)   # Shape: [b*s, latent]
 
         # Cross-modal gated fusion
         # Combine visual and text latents with a learned gate
