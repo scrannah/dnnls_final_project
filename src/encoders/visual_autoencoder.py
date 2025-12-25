@@ -29,10 +29,10 @@ class Backbone(nn.Module):
         self.fc1 = nn.Sequential(nn.Linear(self.flatten_dim, latent_dim), nn.ReLU())
 
     def forward(self, x):
-        x = self.encoder_conv(x)  # feature map for cross modal
+        x = self.encoder_conv(x)  # x is feature map for cross modal if needed
         flat = x.view(-1, self.flatten_dim)  # flatten for linear layer
         z = self.fc1(flat)
-        return z, x  # returning x as feature map as well
+        return z # Return x for feature map here if you need it
 
 
 class VisualEncoder(nn.Module):
@@ -43,7 +43,7 @@ class VisualEncoder(nn.Module):
     def __init__(self, latent_dim=16, output_w=8, output_h=16):
         super(VisualEncoder, self).__init__()
 
-        self.context_backbone = Backbone(latent_dim, output_w, output_h)  # backbone is used twice to extract content AND context
+        self.context_backbone = Backbone(latent_dim, output_w, output_h)  # Backbone is used twice to extract content AND context
         self.content_backbone = Backbone(latent_dim, output_w, output_h)
 
         self.projection = nn.Linear(2*latent_dim, latent_dim)
@@ -62,8 +62,8 @@ class VisualDecoder(nn.Module):
     """
     def __init__(self, latent_dim=16, output_w=8, output_h=16):
         super(VisualDecoder, self).__init__()
-        self.imh = 60  # image height TRANSFORM RESIZE
-        self.imw = 125  # image width
+        self.imh = 60  # Image height TRANSFORM RESIZE
+        self.imw = 125  # Image width
         self.flatten_dim = 64 * output_w * output_h
         self.output_w = output_w
         self.output_h = output_h
