@@ -15,8 +15,8 @@ class CMSequencePredictor(nn.Module):
 
         # --- 2. Temporal Encoder ---
         # (This processes the sequence of pairs)
-        fusion_dim = latent_dim + latent_dim  # z_visual + z_text
-        self.temporal_rnn = nn.GRU(fusion_dim, latent_dim, batch_first=True)
+        # fusion now outputs latent_dim (not 2*latent_dim)
+        self.temporal_rnn = nn.GRU(latent_dim, latent_dim, batch_first=True)
 
         # --- 3. Attention ---
         self.attention = Attention(gru_hidden_dim)
@@ -36,6 +36,10 @@ class CMSequencePredictor(nn.Module):
         self.fused_to_h0 = nn.Linear(latent_dim, 16)
         self.fused_to_c0 = nn.Linear(latent_dim, 16)
 
+        # Cross-modal gated fusion
+        # Learns how much to trust image vs text at the latent level
+        self.fusion_gate = nn.Linear(latent_dim * 2, latent_dim)
+
     def forward(self, image_seq, text_seq, target_seq):
         # image_seq shape: [batch, seq_len, C, H, W]
         # text_seq shape:  [batch, seq_len, text_len]
@@ -54,13 +58,19 @@ class CMSequencePredictor(nn.Module):
 
         # Run encoders
         z_v_flat, feature_map = self.image_encoder(img_flat)  # Shape: [b*s, latent]
-        outputs, hidden, cell = self.text_encoder(txt_flat)  # Shape: [b*s, latent]
+        outputs, hidden, cell = self.text_encoder(txt_flat)   # Shape: [b*s, latent]
 
-        # Combine
-        # z_fusion_flat = torch.cat((z_v_flat, hidden.squeeze(0)), dim=1)  # Shape: [b*s, fusion_dim]
+        # Cross-modal gated fusion
+        # Combine visual and text latents with a learned gate
+        z_t_flat = hidden.squeeze(0)  # Shape: [b*s, latent]
+
+        fusion_input = torch.cat((z_v_flat, z_t_flat), dim=1)  # Shape: [b*s, 2*latent]
+        gate = torch.sigmoid(self.fusion_gate(fusion_input))   # Shape: [b*s, latent]
+
+        z_fusion_flat = gate * z_v_flat + (1 - gate) * z_t_flat  # Shape: [b*s, latent]
 
         # "Un-flatten" back into a sequence
-        z_fusion_seq = z_fusion_flat.view(batch_size, seq_len, -1)  # Shape: [b, s, fusion_dim]
+        z_fusion_seq = z_fusion_flat.view(batch_size, seq_len, -1)  # Shape: [b, s, latent]
 
         # --- 3. Run Temporal Encoder ---
         # zseq shape: [b, s, gru_hidden]
