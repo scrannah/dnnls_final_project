@@ -49,11 +49,11 @@ class VisualEncoder(nn.Module):
         self.projection = nn.Linear(2*latent_dim, latent_dim)
 
     def forward(self, x):
-        z_context, _ = self.context_backbone(x)  # no point returning the same feature map twice
+        z_context = self.context_backbone(x)
         z_content, feature_map = self.content_backbone(x)
         z = torch.cat((z_content, z_context), dim=1)
         z = self.projection(z)
-        return z, feature_map
+        return z
 
 
 class VisualDecoder(nn.Module):
@@ -104,6 +104,6 @@ class VisualAutoencoder(nn.Module):
         self.decoder = VisualDecoder(latent_dim, output_w, output_h)
 
     def forward(self, x):
-        z, _ = self.encoder(x)  # decoder doesnt need feature map
+        z = self.encoder(x)  # decoder doesnt need feature map
         x_hat = self.decoder(z)
         return x_hat
