@@ -50,7 +50,7 @@ class VisualEncoder(nn.Module):
 
     def forward(self, x):
         z_context = self.context_backbone(x)
-        z_content, feature_map = self.content_backbone(x)
+        z_content = self.content_backbone(x)
         z = torch.cat((z_content, z_context), dim=1)
         z = self.projection(z)
         return z
