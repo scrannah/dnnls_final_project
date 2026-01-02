@@ -60,7 +60,7 @@ def train_sequence_predictor(
             running_loss += loss.item() * frames.size(0)
 
         model.eval()
-        print("Validation on training dataset")
+        print("Training on training dataset")
         print("----------------")
         mse_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation(model, train_dataloader,
                                                                                                 device, tokenizer,
