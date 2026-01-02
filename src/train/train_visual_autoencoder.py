@@ -20,8 +20,8 @@ def train_visual_autoencoder(
 
         running_loss = 0.0
         running_percep = 0.0
-        running_ctx = 0.0 # CONTEXT IS MSE
-        running_l1 = 0.0 # CONTENT IS L1
+        running_ctx = 0.0  # CONTEXT IS MSE
+        running_l1 = 0.0  # CONTENT IS L1
 
         for images in train_dataloader:
             # Move batch of images to device
@@ -60,8 +60,12 @@ def train_visual_autoencoder(
         l1_lossavg = running_l1 / len(train_dataloader.dataset)
         ctx_lossavg = running_ctx / len(train_dataloader.dataset)
         epoch_losses.append(combinedepoch_loss)
-        print(f"[Epoch {epoch + 1}]  AE combined Loss: {combinedepoch_loss:.4f} l1 (content) Loss: {l1_lossavg:.4f} mse (context) Loss: {ctx_lossavg:.4f} Perceptual Loss: {percep_lossavg:.4f}")
-
-
+        print(
+            f"[Epoch {epoch + 1}]  "
+            f"AE combined Loss: {combinedepoch_loss:.4f} "
+            f"l1 (content) Loss: {l1_lossavg:.4f} "
+            f"mse (context) Loss: {ctx_lossavg:.4f} "
+            f"Perceptual Loss: {percep_lossavg:.4f}"
+        )
 
         return epoch_losses
