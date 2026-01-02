@@ -8,9 +8,8 @@ def train_visual_autoencoder(
         criterion_images,
         criterion_percep,
         criterion_ctx,
-        beta,
-        kl_anneal_epoch,
         lambda_percep,
+        lambda_ctx,
         device,
         num_epochs=1
 ):
@@ -38,7 +37,7 @@ def train_visual_autoencoder(
 
             # kl_weight = min(beta, beta * global_step / kl_anneal_epoch)
 
-            backprop_loss = loss + lambda_percep * perceptual_loss + ctxloss
+            backprop_loss = loss + lambda_percep * perceptual_loss + lambda_ctx * ctxloss
 
             # Backpropagation
             optimizer.zero_grad()
