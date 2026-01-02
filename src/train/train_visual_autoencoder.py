@@ -55,7 +55,7 @@ def train_visual_autoencoder(
         epoch_loss = running_loss / len(train_dataloader.dataset)
         # kl_loss = running_kl / len(train_dataloader.dataset)
         epoch_losses.append(epoch_loss)
-        print(f"[Epoch {epoch + 1}]  AE Loss: {epoch_loss:.4f}")
+        print(f"[Epoch {epoch + 1}]  AE combined Loss: {epoch_loss:.4f} MSE Loss: {loss:.4f} L1 Loss: {ctxloss:.4f} {loss:.4f} Perceptual Loss: {perceptual_loss:.4f}")
         avg_percep = running_percep / len(train_dataloader.dataset)
 
         # print(f"Recon: {loss.item():.4f} | KL: {kl_loss.item():.4f}")
