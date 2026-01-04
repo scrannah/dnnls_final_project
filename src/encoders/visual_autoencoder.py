@@ -6,7 +6,7 @@ class Backbone(nn.Module):
     """
       Main convolutional blocks for our CNN
     """
-    def __init__(self, latent_dim=16, output_w=8, output_h=16):  # remember to calculate output w h
+    def __init__(self, latent_dim=16, output_h=8, output_w=16):  # remember to calculate output w h
         super(Backbone, self).__init__()
         # Encoder convolutional layers
         self.encoder_conv = nn.Sequential(
@@ -24,7 +24,7 @@ class Backbone(nn.Module):
         )
 
         # Calculate flattened dimension for linear layer
-        self.flatten_dim = 64 * output_w * output_h
+        self.flatten_dim = 64 * output_h * output_w
         # Latent space layers
         self.fc1 = nn.Sequential(nn.Linear(self.flatten_dim, latent_dim), nn.ReLU())
 
@@ -40,11 +40,11 @@ class VisualEncoder(nn.Module):
       Encodes an image into a latent space representation. Note the two pathways
       to try to disentangle the mean pattern from the image
     """
-    def __init__(self, latent_dim=16, output_w=8, output_h=16):
+    def __init__(self, latent_dim=16, output_h=8, output_w=16):
         super(VisualEncoder, self).__init__()
 
-        self.context_backbone = Backbone(latent_dim, output_w, output_h)  # Backbone is used twice to extract content AND context
-        self.content_backbone = Backbone(latent_dim, output_w, output_h)
+        self.context_backbone = Backbone(latent_dim, output_h, output_w)  # Backbone is used twice to extract content AND context
+        self.content_backbone = Backbone(latent_dim, output_h, output_w)
 
         self.projection = nn.Linear(2*latent_dim, latent_dim)
 
@@ -60,11 +60,11 @@ class VisualDecoder(nn.Module):
     """
       Decodes a latent representation into a content image and a context image
     """
-    def __init__(self, latent_dim=16, output_w=8, output_h=16):
+    def __init__(self, latent_dim=16, output_h=8, output_w=16):
         super(VisualDecoder, self).__init__()
         self.imh = 60  # Image height TRANSFORM RESIZE
         self.imw = 125  # Image width
-        self.flatten_dim = 64 * output_w * output_h
+        self.flatten_dim = 64 * output_h * output_w
         self.output_w = output_w
         self.output_h = output_h
 
@@ -91,17 +91,17 @@ class VisualDecoder(nn.Module):
         return x_content, x_context
 
     def decode_image(self, x):
-        x = x.view(-1, 64, self.output_w, self.output_h)      # reshape to conv feature map
+        x = x.view(-1, 64, self.output_h, self.output_w)      # reshape to conv feature map
         x = self.decoder_conv(x)
         x = x[:, :, :self.imh, :self.imw]          # crop to original size if needed
         return x
 
 
 class VisualAutoencoder(nn.Module):
-    def __init__(self, latent_dim=16, output_w=8, output_h=16):
+    def __init__(self, latent_dim=16, output_h=8, output_w=16):
         super(VisualAutoencoder, self).__init__()
-        self.encoder = VisualEncoder(latent_dim, output_w, output_h)
-        self.decoder = VisualDecoder(latent_dim, output_w, output_h)
+        self.encoder = VisualEncoder(latent_dim, output_h, output_w)
+        self.decoder = VisualDecoder(latent_dim, output_h, output_w)
 
     def forward(self, x):
         z = self.encoder(x)  # decoder doesnt need feature map
