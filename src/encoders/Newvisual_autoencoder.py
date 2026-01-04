@@ -28,7 +28,11 @@ class NewBackbone(nn.Module):
 
             nn.Conv2d(32, 64, 3, stride=2, padding=1),
             nn.GroupNorm(8, 64),
-            nn.LeakyReLU(0.1),  # your feature map is here
+            nn.LeakyReLU(0.1),
+
+            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+            nn.GroupNorm(8, 64),
+            nn.LeakyReLU(0.1),  # think dont shrink
         )
 
         # Calculate flattened dimension for linear layer
