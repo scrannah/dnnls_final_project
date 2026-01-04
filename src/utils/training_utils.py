@@ -82,7 +82,12 @@ def validation(model, data_loader, device, tokenizer, criterion_ctx, criterion_t
         if txt_emb.dim() == 3:
             txt_emb = txt_emb.mean(dim=1)  # mean pool sequence
 
-        val_cross_modal = F.cosine_similarity(img_emb, txt_emb).mean().item()
+        val_cross_modal = F.cosine_similarity(img_emb, txt_emb, dim=1).mean().item()
+
+        perm = torch.randperm(txt_emb.size(0), device=txt_emb.device)
+        cms_shuffled = F.cosine_similarity(img_emb, txt_emb[perm], dim=1).mean().item()
+
+        print("CMS shuffled:", cms_shuffled)
         print(f"Validation Cross-modal Similarity: {val_cross_modal:.4f}")
 
         figure, ax = plt.subplots(2, 6, figsize=(20, 5), gridspec_kw={'height_ratios': [2, 1.5]})
