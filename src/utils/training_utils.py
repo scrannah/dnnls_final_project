@@ -34,7 +34,7 @@ def validation(model, data_loader, device, tokenizer, criterion_ctx, criterion_t
 
         # METRICS
 
-        predicted_image_k, context_image, predicted_text_logits_k, hidden, cell = model(frames, descriptions,
+        predicted_image_k, context_image, predicted_text_logits_k, hidden, cell, _, _ = model(frames, descriptions,
                                                                                         text_target)  # need all these for validation metrics
 
         val_image_mse = criterion_ctx(predicted_image_k, image_target).item()
