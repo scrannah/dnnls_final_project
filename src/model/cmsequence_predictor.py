@@ -33,8 +33,8 @@ class CMSequencePredictor(nn.Module):
         self.image_decoder = visual_autoencoder.decoder
         self.text_decoder = text_autoencoder.decoder
 
-        self.fused_to_h0 = nn.Linear(latent_dim, 16)
-        self.fused_to_c0 = nn.Linear(latent_dim, 16)
+        self.fused_to_h0 = nn.Linear(latent_dim, latent_dim)
+        self.fused_to_c0 = nn.Linear(latent_dim, latent_dim)
 
         # Cross-modal gated fusion
         # Learns how much to trust image vs text at the latent level
