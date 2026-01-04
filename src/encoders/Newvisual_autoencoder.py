@@ -23,7 +23,7 @@ class NewBackbone(nn.Module):
             nn.LeakyReLU(0.1),
 
             nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
-            nn.GroupNorm(8, 16),
+            nn.GroupNorm(8, 32),
             nn.LeakyReLU(0.1),  # think dont shrink
 
             nn.Conv2d(32, 64, 3, stride=2, padding=1),
