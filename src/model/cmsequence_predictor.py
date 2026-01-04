@@ -45,7 +45,6 @@ class CMSequencePredictor(nn.Module):
         # text_seq shape:  [batch, seq_len, text_len]
         # target_text_for_teacher_forcing: [batch, text_len] (This is the last text)
 
-
         batch_size, seq_len, C, H, W = image_seq.shape
 
         # --- 1 & 2: Run Static Encoders over the sequence ---
