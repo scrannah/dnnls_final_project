@@ -2,12 +2,12 @@ import torch
 import torch.nn as nn
 
 
-class Backbone(nn.Module):
+class NewBackbone(nn.Module):
     """
       Main convolutional blocks for our CNN
     """
     def __init__(self, latent_dim=16, output_h=8, output_w=16):  # remember to calculate output w h
-        super(Backbone, self).__init__()
+        super(NewBackbone, self).__init__()
         # Encoder convolutional layers
         self.encoder_conv = nn.Sequential(
             nn.Conv2d(3, 16, 7, stride=2, padding=3),
@@ -41,16 +41,16 @@ class Backbone(nn.Module):
         return z # Return x for feature map here if you need it
 
 
-class VisualEncoder(nn.Module):
+class NewVisualEncoder(nn.Module):
     """
       Encodes an image into a latent space representation. Note the two pathways
       to try to disentangle the mean pattern from the image
     """
     def __init__(self, latent_dim=16, output_h=8, output_w=16):
-        super(VisualEncoder, self).__init__()
+        super(NewVisualEncoder, self).__init__()
 
-        self.context_backbone = Backbone(latent_dim, output_h, output_w)  # Backbone is used twice to extract content AND context
-        self.content_backbone = Backbone(latent_dim, output_h, output_w)
+        self.context_backbone = NewBackbone(latent_dim, output_h, output_w)  # Backbone is used twice to extract content AND context
+        self.content_backbone = NewBackbone(latent_dim, output_h, output_w)
 
         self.projection = nn.Linear(2*latent_dim, latent_dim)
 
@@ -62,12 +62,12 @@ class VisualEncoder(nn.Module):
         return z
 
 
-class VisualDecoder(nn.Module):
+class NewVisualDecoder(nn.Module):
     """
       Decodes a latent representation into a content image and a context image
     """
     def __init__(self, latent_dim=16, output_h=8, output_w=16):
-        super(VisualDecoder, self).__init__()
+        super(NewVisualDecoder, self).__init__()
         self.imh = 60  # Image height TRANSFORM RESIZE
         self.imw = 125  # Image width
         self.flatten_dim = 64 * output_h * output_w
@@ -103,11 +103,11 @@ class VisualDecoder(nn.Module):
         return x
 
 
-class VisualAutoencoder(nn.Module):
+class NewVisualAutoencoder(nn.Module):
     def __init__(self, latent_dim=16, output_h=8, output_w=16):
-        super(VisualAutoencoder, self).__init__()
-        self.encoder = VisualEncoder(latent_dim, output_h, output_w)
-        self.decoder = VisualDecoder(latent_dim, output_h, output_w)
+        super(NewVisualAutoencoder, self).__init__()
+        self.encoder = NewVisualEncoder(latent_dim, output_h, output_w)
+        self.decoder = NewVisualDecoder(latent_dim, output_h, output_w)
 
     def forward(self, x):
         z = self.encoder(x)  # decoder doesnt need feature map
