@@ -97,4 +97,4 @@ class CMSequencePredictor(nn.Module):
         # and the full "teacher" sequence (decoder_input).
         predicted_text_logits_k, _hidden, _cell = self.text_decoder(decoder_input, h0, c0)
 
-        return pred_image_content, pred_image_context, predicted_text_logits_k, h0, c0
+        return pred_image_content, pred_image_context, predicted_text_logits_k, h0, c0, z_t_flat, z_v_flat

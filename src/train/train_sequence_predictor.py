@@ -1,5 +1,5 @@
 from src.utils.training_utils import validation, show_image
-
+import torch.nn.functional as F
 
 def train_sequence_predictor(
         model,
@@ -11,7 +11,8 @@ def train_sequence_predictor(
         criterion_text,
         tokenizer,
         device,
-        num_epochs
+        num_epochs,
+        lambda_cm
 ):
     model.train()
     epoch_losses = []
@@ -36,7 +37,7 @@ def train_sequence_predictor(
             image_target = image_target.to(device)
             text_target = text_target.to(device)
             # Predictions from our model
-            pred_image_content, pred_image_context, predicted_text_logits_k, _, _ = model(frames, descriptions,
+            pred_image_content, pred_image_context, predicted_text_logits_k, _, _, z_t_flat, z_v_flat = model(frames, descriptions,
                                                                                           text_target)
             # Computing losses
             # Loss for image reconstruction
@@ -50,8 +51,11 @@ def train_sequence_predictor(
             target_labels = text_target.squeeze(1)[:, 1:]  # Slice to get [8, 119]
             target_flat = target_labels.reshape(-1)
             loss_text = criterion_text(prediction_flat, target_flat)
+            loss_align = 1 - F.cosine_similarity(z_v_flat, z_t_flat, dim=1).mean()
             # Combining the losses
-            loss = loss_im + loss_text + 0.2 * loss_context
+            loss = loss_im + loss_text + 0.2 * loss_context + lambda_cm * loss_align
+            #added a cm alignment loss to push them together
+
             # Optimizing
             optimizer.zero_grad()
             loss.backward()
