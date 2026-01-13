@@ -11,7 +11,7 @@ class AutoEncoderTaskDataset(Dataset):
             transforms.ToTensor(),  # HxWxC -> CxHxW
             transforms.Normalize(mean=[0.15, 0.15, 0.15],
                      std=[0.275, 0.275, 0.275]),
-            transforms.ColorJitter(brightness=0.4, contrast=0.3),
+            # transforms.ColorJitter(brightness=0.4, contrast=0.3),
 
         ])
 
