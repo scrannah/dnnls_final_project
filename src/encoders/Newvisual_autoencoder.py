@@ -87,24 +87,38 @@ class NewVisualDecoder(nn.Module):
           nn.GroupNorm(8, 32),
           nn.LeakyReLU(0.1),
 
+          nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
+          nn.GroupNorm(8, 32),
+          nn.LeakyReLU(0.1),
+
           nn.ConvTranspose2d(32, 16, kernel_size=5, stride=2, padding=2, output_padding=1),
           nn.GroupNorm(8, 16),
           nn.LeakyReLU(0.1),
 
-          nn.ConvTranspose2d(16, 3, kernel_size=7, stride=2, padding=3, output_padding=(1, 1)),
-          nn.Sigmoid())  # Use nn.Tanh() if your data is normalized to [-1, 1]
+          nn.Conv2d(16, 16, kernel_size=3, stride=1, padding=1),
+          nn.GroupNorm(8, 16),
+          nn.LeakyReLU(0.1))
+
+        self.context_head = nn.Sequential(
+            nn.ConvTranspose2d(16, 3, kernel_size=7, stride=2, padding=3, output_padding=(1, 1)),
+            nn.Sigmoid())  # Use nn.Tanh() if your data is normalized to [-1, 1]
+
+        self.content_head = nn.Sequential(
+            nn.ConvTranspose2d(16, 3, kernel_size=7, stride=2, padding=3, output_padding=(1, 1)),
+            nn.Sigmoid())  # Use nn.Tanh() if your data is normalized to [-1, 1]
 
     def forward(self, z):
         x = self.fc1(z)
 
-        x_content = self.decode_image(x)
-        x_context = self.decode_image(x)
+        x_content = self.decode_image(x, self.content_head)
+        x_context = self.decode_image(x, self.context_head)
 
         return x_content, x_context
 
-    def decode_image(self, x):
+    def decode_image(self, x, head):
         x = x.view(-1, 64, self.output_h, self.output_w)      # reshape to conv feature map
         x = self.decoder_conv(x)
+        x = head(x)
         x = x[:, :, :self.imh, :self.imw]          # crop to original size if needed
         return x
 
