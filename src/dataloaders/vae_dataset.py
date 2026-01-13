@@ -9,9 +9,9 @@ class AutoEncoderTaskDataset(Dataset):
         self.transform = transforms.Compose([
             transforms.Resize((60, 125)),  # made it same as sp size so it doesnt break
             transforms.ToTensor(),  # HxWxC -> CxHxW
-            #transforms.Normalize(mean=[0.15, 0.15, 0.15],
-                     #std=[0.275, 0.275, 0.275])
-            transforms.ColorJitter(brightness=0.4, contrast=0.3),
+            transforms.Normalize(mean=[0.15, 0.15, 0.15],
+                     std=[0.275, 0.275, 0.275])
+            # transforms.ColorJitter(brightness=0.4, contrast=0.3),
 
         ])
 

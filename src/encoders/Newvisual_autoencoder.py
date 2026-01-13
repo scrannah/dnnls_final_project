@@ -92,7 +92,7 @@ class NewVisualDecoder(nn.Module):
           nn.LeakyReLU(0.1),
 
           nn.ConvTranspose2d(16, 3, kernel_size=7, stride=2, padding=3, output_padding=(1, 1)),
-          nn.Sigmoid())  # Use nn.Tanh() if your data is normalized to [-1, 1]
+          nn.Tanh())  # Use nn.Tanh() if your data is normalized to [-1, 1]
 
     def forward(self, z):
         x = self.fc1(z)
