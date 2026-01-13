@@ -6,7 +6,7 @@ class NewBackbone(nn.Module):
     """
       Main convolutional blocks for our CNN
     """
-    def __init__(self, latent_dim=16, output_h=8, output_w=16):  # remember to calculate output w h
+    def __init__(self, latent_dim=128, output_h=8, output_w=16):  # remember to calculate output w h
         super(NewBackbone, self).__init__()
         # Encoder convolutional layers
         self.encoder_conv = nn.Sequential(
@@ -52,7 +52,7 @@ class NewVisualEncoder(nn.Module):
       Encodes an image into a latent space representation. Note the two pathways
       to try to disentangle the mean pattern from the image
     """
-    def __init__(self, latent_dim=16, output_h=8, output_w=16):
+    def __init__(self, latent_dim=128, output_h=8, output_w=16):
         super(NewVisualEncoder, self).__init__()
 
         self.context_backbone = NewBackbone(latent_dim, output_h, output_w)  # Backbone is used twice to extract content AND context
@@ -72,7 +72,7 @@ class NewVisualDecoder(nn.Module):
     """
       Decodes a latent representation into a content image and a context image
     """
-    def __init__(self, latent_dim=16, output_h=8, output_w=16):
+    def __init__(self, latent_dim=128, output_h=8, output_w=16):
         super(NewVisualDecoder, self).__init__()
         self.imh = 60  # Image height TRANSFORM RESIZE
         self.imw = 125  # Image width
@@ -110,7 +110,7 @@ class NewVisualDecoder(nn.Module):
 
 
 class NewVisualAutoencoder(nn.Module):
-    def __init__(self, latent_dim=16, output_h=8, output_w=16):
+    def __init__(self, latent_dim=128, output_h=8, output_w=16):
         super(NewVisualAutoencoder, self).__init__()
         self.encoder = NewVisualEncoder(latent_dim, output_h, output_w)
         self.decoder = NewVisualDecoder(latent_dim, output_h, output_w)
