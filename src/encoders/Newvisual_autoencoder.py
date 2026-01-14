@@ -9,27 +9,38 @@ class NewBackbone(nn.Module):
     def __init__(self, latent_dim=128, output_h=8, output_w=16):  # remember to calculate output w h
         super(NewBackbone, self).__init__()
         # Encoder convolutional layers
-        self.encoder_conv = nn.Sequential(
+
+        self.down1 = nn.Sequential(
             nn.Conv2d(3, 16, 7, stride=2, padding=3),
             nn.GroupNorm(8, 16),
-            nn.LeakyReLU(0.1), # think and shrink
+            nn.LeakyReLU(0.1),  # think and shrink
+        )
 
+        self.think1 = nn.Sequential(
             nn.Conv2d(16, 16, kernel_size=3, stride=1, padding=1),
             nn.GroupNorm(8, 16),
-            nn.LeakyReLU(0.1), # think dont shrink
+            nn.LeakyReLU(0.1),  # think dont shrink
+        )
 
+        self.down2 = nn.Sequential(
             nn.Conv2d(16, 32, 5, stride=2, padding=2),
             nn.GroupNorm(8, 32),
             nn.LeakyReLU(0.1),
+        )
 
+        self.think2 = nn.Sequential(
             nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
             nn.GroupNorm(8, 32),
             nn.LeakyReLU(0.1),  # think dont shrink
+        )
 
+        self.down3 = nn.Sequential(
             nn.Conv2d(32, 64, 3, stride=2, padding=1),
             nn.GroupNorm(8, 64),
             nn.LeakyReLU(0.1),
+        )
 
+        self.think3 = nn.Sequential(
             nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
             nn.GroupNorm(8, 64),
             nn.LeakyReLU(0.1),  # think dont shrink
@@ -41,7 +52,18 @@ class NewBackbone(nn.Module):
         self.fc1 = nn.Sequential(nn.Linear(self.flatten_dim, latent_dim), nn.ReLU())
 
     def forward(self, x):
-        x = self.encoder_conv(x)  # x is feature map for cross modal if needed
+        # Stage 1
+        x = self.down1(x)               # think and shrink
+        x = x + self.think1(x)          # residual: think dont shrink
+
+        # Stage 2
+        x = self.down2(x)
+        x = x + self.think2(x)          # residual: think dont shrink
+
+        # Stage 3
+        x = self.down3(x)
+        x = x + self.think3(x)          # residual: think dont shrink
+
         flat = x.view(-1, self.flatten_dim)  # flatten for linear layer
         z = self.fc1(flat)
         return z # Return x for feature map here if you need it
