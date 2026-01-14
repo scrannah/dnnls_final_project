@@ -6,6 +6,7 @@ class NewBackbone(nn.Module):
     """
       Main convolutional blocks for our CNN
     """
+
     def __init__(self, latent_dim=128, output_h=8, output_w=16):  # remember to calculate output w h
         super(NewBackbone, self).__init__()
         # Encoder convolutional layers
@@ -52,21 +53,16 @@ class NewBackbone(nn.Module):
         self.fc1 = nn.Sequential(nn.Linear(self.flatten_dim, latent_dim), nn.ReLU())
 
     def forward(self, x):
-        # Stage 1
-        x = self.down1(x)               # think and shrink
-        x = x + self.think1(x)          # residual: think dont shrink
-
-        # Stage 2
+        x = self.down1(x)  # think and shrink
+        x = x + self.think1(x)  # residual: think dont shrink
         x = self.down2(x)
-        x = x + self.think2(x)          # residual: think dont shrink
-
-        # Stage 3
+        x = x + self.think2(x)
         x = self.down3(x)
-        x = x + self.think3(x)          # residual: think dont shrink
+        x = x + self.think3(x)
 
         flat = x.view(-1, self.flatten_dim)  # flatten for linear layer
         z = self.fc1(flat)
-        return z # Return x for feature map here if you need it
+        return z  # Return x for feature map here if you need it
 
 
 class NewVisualEncoder(nn.Module):
@@ -74,13 +70,15 @@ class NewVisualEncoder(nn.Module):
       Encodes an image into a latent space representation. Note the two pathways
       to try to disentangle the mean pattern from the image
     """
+
     def __init__(self, latent_dim=128, output_h=8, output_w=16):
         super(NewVisualEncoder, self).__init__()
 
-        self.context_backbone = NewBackbone(latent_dim, output_h, output_w)  # Backbone is used twice to extract content AND context
+        self.context_backbone = NewBackbone(latent_dim, output_h,
+                                            output_w)  # Backbone is used twice to extract content AND context
         self.content_backbone = NewBackbone(latent_dim, output_h, output_w)
 
-        self.projection = nn.Linear(2*latent_dim, latent_dim)
+        self.projection = nn.Linear(2 * latent_dim, latent_dim)
 
     def forward(self, x):
         z_context = self.context_backbone(x)
@@ -94,6 +92,7 @@ class NewVisualDecoder(nn.Module):
     """
       Decodes a latent representation into a content image and a context image
     """
+
     def __init__(self, latent_dim=128, output_h=8, output_w=16):
         super(NewVisualDecoder, self).__init__()
         self.imh = 60  # Image height TRANSFORM RESIZE
@@ -104,22 +103,29 @@ class NewVisualDecoder(nn.Module):
 
         self.fc1 = nn.Linear(latent_dim, self.flatten_dim)
 
-        self.decoder_conv = nn.Sequential(
-          nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=(1, 1)),
-          nn.GroupNorm(8, 32),
-          nn.LeakyReLU(0.1),
+        self.up1 = nn.Sequential(
+            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=(1, 1)),
+            nn.GroupNorm(8, 32),
+            nn.LeakyReLU(0.1),
+        )
 
-          nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
-          nn.GroupNorm(8, 32),
-          nn.LeakyReLU(0.1),
+        self.think32 = nn.Sequential(
+            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
+            nn.GroupNorm(8, 32),
+            nn.LeakyReLU(0.1),  # think dont shrink
+        )
 
-          nn.ConvTranspose2d(32, 16, kernel_size=5, stride=2, padding=2, output_padding=1),
-          nn.GroupNorm(8, 16),
-          nn.LeakyReLU(0.1),
+        self.up2 = nn.Sequential(
+            nn.ConvTranspose2d(32, 16, kernel_size=5, stride=2, padding=2, output_padding=1),
+            nn.GroupNorm(8, 16),
+            nn.LeakyReLU(0.1),
+        )
 
-          nn.Conv2d(16, 16, kernel_size=3, stride=1, padding=1),
-          nn.GroupNorm(8, 16),
-          nn.LeakyReLU(0.1))
+        self.think16 = nn.Sequential(
+            nn.Conv2d(16, 16, kernel_size=3, stride=1, padding=1),
+            nn.GroupNorm(8, 16),
+            nn.LeakyReLU(0.1),  # think dont shrink
+        )
 
         self.context_head = nn.Sequential(
             nn.ConvTranspose2d(16, 3, kernel_size=7, stride=2, padding=3, output_padding=(1, 1)),
@@ -138,10 +144,13 @@ class NewVisualDecoder(nn.Module):
         return x_content, x_context
 
     def decode_image(self, x, head):
-        x = x.view(-1, 64, self.output_h, self.output_w)      # reshape to conv feature map
-        x = self.decoder_conv(x)
+        x = x.view(-1, 64, self.output_h, self.output_w)  # reshape to conv feature map
+        x = self.up1(x)
+        x = x + self.think32(x)  # residual: think dont shrink
+        x = self.up2(x)
+        x = x + self.think16(x)  # residual: think dont shrink
         x = head(x)
-        x = x[:, :, :self.imh, :self.imw]          # crop to original size if needed
+        x = x[:, :, :self.imh, :self.imw]  # crop to original size if needed
         return x
 
 
