@@ -10,8 +10,8 @@ class AutoEncoderTaskDataset(Dataset):
             transforms.Resize((60, 125)),  # made it same as sp size so it doesnt break
             transforms.ColorJitter(brightness=(0.9, 1.4), contrast=(0.9, 1.3)),
             transforms.ToTensor(),  # HxWxC -> CxHxW
-            transforms.Normalize(mean=[0.150, 0.150, 0.150],
-            std =[0.275, 0.275, 0.275])
+            #transforms.Normalize(mean=[0.150, 0.150, 0.150],
+            #std =[0.275, 0.275, 0.275])
         ])
 
     def __len__(self):
