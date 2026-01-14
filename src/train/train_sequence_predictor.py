@@ -1,6 +1,7 @@
 from src.utils.training_utils import validation, show_image
 import torch.nn.functional as F
 
+
 def train_sequence_predictor(
         model,
         train_dataloader,
@@ -16,13 +17,13 @@ def train_sequence_predictor(
 ):
     model.train()
     epoch_losses = []
-    train_mse_values = []
+    train_L1_values = []
     train_perplexity_values = []
     train_bleu_values = []
     train_crossmodal_values = []
     train_ssim_values = []
 
-    val_mse_values = []
+    val_L1_values = []
     val_perplexity_values = []
     val_bleu_values = []
     val_crossmodal_values = []
@@ -37,8 +38,9 @@ def train_sequence_predictor(
             image_target = image_target.to(device)
             text_target = text_target.to(device)
             # Predictions from our model
-            pred_image_content, pred_image_context, predicted_text_logits_k, _, _, z_t_flat, z_v_flat = model(frames, descriptions,
-                                                                                          text_target)
+            pred_image_content, pred_image_context, predicted_text_logits_k, _, _, z_t_flat, z_v_flat = model(frames,
+                                                                                                              descriptions,
+                                                                                                              text_target)
             # Computing losses
             # Loss for image reconstruction
             loss_im = criterion_images(pred_image_content, image_target)  # image loss
@@ -54,7 +56,7 @@ def train_sequence_predictor(
             loss_align = 1 - F.cosine_similarity(z_v_flat, z_t_flat, dim=1).mean()
             # Combining the losses
             loss = loss_im + loss_text + 0.2 * loss_context + lambda_cm * loss_align
-            #added a cm alignment loss to push them together
+            # added a cm alignment loss to push them together
 
             # Optimizing
             optimizer.zero_grad()
@@ -66,20 +68,20 @@ def train_sequence_predictor(
         model.eval()
         print("Validation on training dataset")
         print("----------------")
-        mse_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation(model, train_dataloader,
-                                                                                                device, tokenizer,
-                                                                                                criterion_images,
-                                                                                                criterion_text)
-        train_mse_values.append(mse_values)
+        L1_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation(model, train_dataloader,
+                                                                                               device, tokenizer,
+                                                                                               criterion_images,
+                                                                                               criterion_text)
+        train_L1_values.append(L1_values)
         train_perplexity_values.append(perplexity_values)
         train_bleu_values.append(bleu_values)
         train_crossmodal_values.append(crossmodal_values)
         train_ssim_values.append(ssim_values)
         print("Validation on validation dataset")
         print("----------------")
-        val_mse, val_perp, val_bleu, val_crossmodal, val_ssim = validation(model, val_dataloader, device, tokenizer,
-                                                                           criterion_images, criterion_text)
-        val_mse_values.append(val_mse)
+        val_L1, val_perp, val_bleu, val_crossmodal, val_ssim = validation(model, val_dataloader, device, tokenizer,
+                                                                          criterion_images, criterion_text)
+        val_L1_values.append(val_L1)
         val_perplexity_values.append(val_perp)
         val_bleu_values.append(val_bleu)
         val_crossmodal_values.append(val_crossmodal)
@@ -93,13 +95,13 @@ def train_sequence_predictor(
     return {
         "epoch_losses": epoch_losses,
 
-        "train_mse": train_mse_values,
+        "train_L1": train_L1_values,
         "train_perplexity": train_perplexity_values,
         "train_bleu": train_bleu_values,
         "train_crossmodal": train_crossmodal_values,
         "train_ssim": train_ssim_values,
 
-        "val_mse": val_mse_values,
+        "val_L1": val_L1_values,
         "val_perplexity": val_perplexity_values,
         "val_bleu": val_bleu_values,
         "val_crossmodal": val_crossmodal_values,
