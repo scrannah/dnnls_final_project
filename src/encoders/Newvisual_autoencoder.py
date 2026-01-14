@@ -146,9 +146,9 @@ class NewVisualDecoder(nn.Module):
     def decode_image(self, x, head):
         x = x.view(-1, 64, self.output_h, self.output_w)  # reshape to conv feature map
         x = self.up1(x)
-        x = self.think32(x)  # residual: think dont shrink
+        x = self.think32(x)
         x = self.up2(x)
-        x = self.think16(x)  # residual: think dont shrink
+        x = self.think16(x)
         x = head(x)
         x = x[:, :, :self.imh, :self.imw]  # crop to original size if needed
         return x
