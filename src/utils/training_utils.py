@@ -23,7 +23,7 @@ def init_weights(m):
 def validation(model, data_loader, device, tokenizer, criterion_images, criterion_text):
     model.eval()
     with torch.no_grad():
-        frames, descriptions, image_target, text_target = next(iter(data_loader))
+        frames, descriptions, image_target, text_target = next(iter(data_loader)) # this will be the same if val dataloader is NOT shuffled
 
         descriptions = descriptions.to(device)
         frames = frames.to(device)
@@ -61,7 +61,10 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
         ssim_val = ssim_fn(predicted_img, target_img).item()
         print(f"Validation SSIM: {ssim_val:.4f}")
 
-        pred_ids = torch.argmax(predicted_text_logits_k, dim=-1)
+        pred_ids = torch.argmax(predicted_text_logits_k, dim=-1)[0]
+        pred_ids2 = torch.argmax(predicted_text_logits_k, dim=-1)
+        print("predicted_image_content", predicted_image_content.shape)
+        print("pred_ids2", pred_ids2.shape)
 
         # Ground truth IDs
         gt_ids = text_target.squeeze(1)[0]  # get rid of middle dimension, pass first example for visualisation
@@ -74,7 +77,7 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
         print(f"Validation BLEU: {val_bleu:.4f}")
 
         img_emb = model.image_encoder(predicted_image_content)
-        txt_emb = model.text_encoder(pred_ids.unsqueeze(0))
+        txt_emb = model.text_encoder(pred_ids2.unsqueeze(0))
 
         # if text encoder returns embrddinsg for each token. average them
         if isinstance(txt_emb, tuple):  # if text encoder returns tuple not tensor, take 1st value only
