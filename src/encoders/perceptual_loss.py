@@ -70,5 +70,5 @@ class PerceptualLoss(nn.Module):
         loss4 = self.loss_fn(recon_f4, target_f4)
 
         # 4. Sum the losses
-        perceptual_loss = loss1 + loss2 + loss3 + loss4
+        perceptual_loss = 0.1*loss1 + 0.2*loss2 + 0.3*loss3 + 0.4*loss4  # trying to weighten deeper layers more
         return perceptual_loss
