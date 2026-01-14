@@ -54,11 +54,11 @@ class NewBackbone(nn.Module):
 
     def forward(self, x):
         x = self.down1(x)  # think and shrink
-        x = x + self.think1(x)  # residual: think dont shrink
+        x = self.think1(x)  # residual: think dont shrink
         x = self.down2(x)
-        x = x + self.think2(x)
+        x = self.think2(x)
         x = self.down3(x)
-        x = x + self.think3(x)
+        x = self.think3(x)
 
         flat = x.view(-1, self.flatten_dim)  # flatten for linear layer
         z = self.fc1(flat)
@@ -146,9 +146,9 @@ class NewVisualDecoder(nn.Module):
     def decode_image(self, x, head):
         x = x.view(-1, 64, self.output_h, self.output_w)  # reshape to conv feature map
         x = self.up1(x)
-        x = x + self.think32(x)  # residual: think dont shrink
+        x = self.think32(x)  # residual: think dont shrink
         x = self.up2(x)
-        x = x + self.think16(x)  # residual: think dont shrink
+        x = self.think16(x)  # residual: think dont shrink
         x = head(x)
         x = x[:, :, :self.imh, :self.imw]  # crop to original size if needed
         return x
