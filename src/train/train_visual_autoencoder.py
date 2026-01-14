@@ -1,4 +1,6 @@
 import torch
+from src.encoders.gradient_loss import sobel_gradient_loss
+
 
 
 def train_visual_autoencoder(
@@ -10,6 +12,7 @@ def train_visual_autoencoder(
         criterion_ctx,
         lambda_percep,
         lambda_ctx,
+        lambda_grad,
         device,
         num_epochs=1
 ):
@@ -22,6 +25,7 @@ def train_visual_autoencoder(
         running_percep = 0.0
         running_ctx = 0.0  # CONTEXT IS MSE
         running_l1 = 0.0  # CONTENT IS L1
+        running_grad = 0.0
 
         for images in train_dataloader:
             # Move batch of images to device
@@ -34,11 +38,14 @@ def train_visual_autoencoder(
             l1loss = criterion_images(x_content, images)
             ctxloss = criterion_ctx(x_context, images)
             perceptual_loss = criterion_percep(x_content, images)
+            gradloss = sobel_gradient_loss(x_content, images)
+
+
             # kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(),dim=1).mean()
 
             # kl_weight = min(beta, beta * global_step / kl_anneal_epoch)
 
-            backprop_loss = l1loss + lambda_percep * perceptual_loss + lambda_ctx * ctxloss
+            backprop_loss = l1loss + lambda_grad * gradloss + lambda_percep * perceptual_loss + lambda_ctx * ctxloss
 
             # Backpropagation
             optimizer.zero_grad()
@@ -49,6 +56,7 @@ def train_visual_autoencoder(
             running_percep += perceptual_loss.item() * images.size(0)
             running_l1 += l1loss.item() * images.size(0)
             running_ctx += ctxloss.item() * images.size(0)
+            running_grad += gradloss.item() * images.size(0)
 
             # running_kl += kl_loss * images.size(0)
 
@@ -59,13 +67,15 @@ def train_visual_autoencoder(
         percep_lossavg = running_percep / len(train_dataloader.dataset)
         l1_lossavg = running_l1 / len(train_dataloader.dataset)
         ctx_lossavg = running_ctx / len(train_dataloader.dataset)
+        gradloss_avg = running_grad / len(train_dataloader.dataset)
         epoch_losses.append(combinedepoch_loss)
         print(
             f"[Epoch {epoch + 1}]  "
             f"AE combined Loss: {combinedepoch_loss:.4f} "
             f"l1 (content) Loss: {l1_lossavg:.4f} "
             f"mse (context) Loss: {ctx_lossavg:.4f} "
-            f"Perceptual Loss: {percep_lossavg:.4f}"
+            f"Perceptual Loss: {percep_lossavg:.4f} "
+            f"Grad Loss: {gradloss_avg:.4f}"
         )
 
-        return epoch_losses
+    return epoch_losses

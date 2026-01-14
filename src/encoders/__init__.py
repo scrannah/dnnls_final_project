@@ -5,3 +5,4 @@ from .unetvisual_autoencoder import UNetBackbone, UNetVisualEncoder, UNetVisualD
 from .VAEvisual_autoencoder import VAEBackbone, VAEVisualEncoder, VAEVisualDecoder, VAEVisualAutoencoder
 from .Newvisual_autoencoder import NewBackbone, NewVisualEncoder, NewVisualDecoder, NewVisualAutoencoder
 from .resnet18_visualautoencoder import ResNet18Backbone, NewVisualEncoder, NewVisualDecoder, NewVisualAutoencoder
+from .gradient_loss import sobel_gradients, sobel_gradient_loss
