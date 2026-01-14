@@ -63,8 +63,7 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
 
         pred_ids = torch.argmax(predicted_text_logits_k, dim=-1)[0]
         pred_ids2 = torch.argmax(predicted_text_logits_k, dim=-1)
-        print("predicted_image_content", predicted_image_content.shape)
-        print("pred_ids2", pred_ids2.shape)
+
 
         # Ground truth IDs
         gt_ids = text_target.squeeze(1)[0]  # get rid of middle dimension, pass first example for visualisation
@@ -77,7 +76,7 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
         print(f"Validation BLEU: {val_bleu:.4f}")
 
         img_emb = model.image_encoder(predicted_image_content)
-        txt_emb = model.text_encoder(pred_ids2.unsqueeze(0))
+        txt_emb = model.text_encoder(pred_ids2)
 
         # if text encoder returns embrddinsg for each token. average them
         if isinstance(txt_emb, tuple):  # if text encoder returns tuple not tensor, take 1st value only
