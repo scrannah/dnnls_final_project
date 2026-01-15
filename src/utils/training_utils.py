@@ -62,7 +62,7 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
         print(f"Validation SSIM: {ssim_val:.4f}")
 
         pred_ids = torch.argmax(predicted_text_logits_k, dim=-1)[0]
-        pred_ids2 = torch.argmax(predicted_text_logits_k, dim=-1)
+        pred_ids2 = torch.argmax(text_target, dim=-1)
 
 
         # Ground truth IDs
@@ -75,7 +75,7 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
         val_bleu = sentence_bleu([gt_sentence.split()], pred_sentence.split())  # pass ground truth and predicted
         print(f"Validation BLEU: {val_bleu:.4f}")
 
-        img_emb = model.image_encoder(predicted_image_content)
+        img_emb = model.image_encoder(image_target)  # GT instead of predicted cms
         txt_emb = model.text_encoder(pred_ids2)
 
         # if text encoder returns embrddinsg for each token. average them
