@@ -7,7 +7,7 @@ class ResNet18Backbone(nn.Module):
     def __init__(self, latent_dim=128):
         super().__init__()
 
-        self.backbone = resnet18(weights=ResNet18_Weights.DEFAULT)
+        self.backbone = resnet18(weights=None)
 
         self.backbone.fc = nn.Identity()   # now backbone(x) -> [B, 512]
 
