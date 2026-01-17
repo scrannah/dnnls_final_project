@@ -65,7 +65,7 @@ class CMSequencePredictor(nn.Module):
         # Combine visual and text latents with a learned gate
         z_t_flat = hidden.squeeze(0)  # Shape: [b*s, latent]
 
-        z_v_flat = F.normalize(z_v_flat, p=2, dim=1) # L2 normalisation to help align them more
+        z_v_flat = F.normalize(z_v_flat, p=2, dim=1) # L2 normalisation to help align latents
         z_t_flat = F.normalize(z_t_flat, p=2, dim=1)
 
         fusion_input = torch.cat((z_v_flat, z_t_flat), dim=1)  # Shape: [b*s, 2*latent]
