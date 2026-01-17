@@ -20,7 +20,7 @@ def init_weights(m):
 
 
 # Plots four images and their reconstructions
-def validation(model, data_loader, device, tokenizer, criterion_images, criterion_text):
+def validation(model, data_loader, device, tokenizer, criterion_text, criterion_ctx):
     model.eval()
     with torch.no_grad():
         frames, descriptions, image_target, text_target = next(iter(data_loader)) # this will be the same if val dataloader is NOT shuffled
@@ -37,8 +37,8 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
         predicted_image_content, context_image, predicted_text_logits_k, hidden, cell, _, _ = model(frames, descriptions,
                                                                                         text_target)  # need all these for validation metrics
 
-        val_image_l1 = criterion_images(predicted_image_content, image_target).item()
-        print(f"Validation Image L1: {val_image_l1:.4f}")
+        val_image_mse = criterion_ctx(context_image, image_target).item()
+        print(f"Validation Image MSE: {val_image_mse:.4f}")
 
         # flatten and remove teacher forcing
 
@@ -56,7 +56,7 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
 
         # SSIM
 
-        predicted_img = torch.clamp(predicted_image_content, 0, 1)  # SSIM needs values betwee 0,1 so we clamp for it here
+        predicted_img = torch.clamp(predicted_image_content, 0, 1)  # SSIM needs values between 0,1 so we clamp for it here
         target_img = torch.clamp(image_target, 0, 1)
         ssim_val = ssim_fn(predicted_img, target_img).item()
         print(f"Validation SSIM: {ssim_val:.4f}")
@@ -129,7 +129,7 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
             fontsize=10,
             wrap=False)
         ax[1, 4].axis('off')
-        output = predicted_image_content[0, :, :, :].cpu()  # this was context image i changed to content
+        output = predicted_image_content[0, :, :, :].cpu()  # this was context image I changed to content
         show_image(ax[0, 5], output)
         ax[0, 5].set_title('Predicted')
         ax[0, 5].set_aspect('auto')
@@ -156,7 +156,7 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
         plt.tight_layout()
         plt.show()
         return (
-            val_image_l1,
+            val_image_mse,
             val_perplexity,
             val_bleu,
             val_cross_modal,
