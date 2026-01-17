@@ -17,13 +17,13 @@ def train_sequence_predictor(
 ):
     model.train()
     epoch_losses = []
-    train_L1_values = []
+    train_mse_values = []
     train_perplexity_values = []
     train_bleu_values = []
     train_crossmodal_values = []
     train_ssim_values = []
 
-    val_L1_values = []
+    val_mse_values = []
     val_perplexity_values = []
     val_bleu_values = []
     val_crossmodal_values = []
@@ -68,20 +68,20 @@ def train_sequence_predictor(
         model.eval()
         print("Validation on training dataset")
         print("----------------")
-        L1_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation(model, train_dataloader,
+        mse_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation(model, train_dataloader,
                                                                                                device, tokenizer,
                                                                                                criterion_images,
                                                                                                criterion_text)
-        train_L1_values.append(L1_values)
+        train_mse_values.append(mse_values)
         train_perplexity_values.append(perplexity_values)
         train_bleu_values.append(bleu_values)
         train_crossmodal_values.append(crossmodal_values)
         train_ssim_values.append(ssim_values)
         print("Validation on validation dataset")
         print("----------------")
-        val_L1, val_perp, val_bleu, val_crossmodal, val_ssim = validation(model, val_dataloader, device, tokenizer,
+        val_mse, val_perp, val_bleu, val_crossmodal, val_ssim = validation(model, val_dataloader, device, tokenizer,
                                                                           criterion_images, criterion_text)
-        val_L1_values.append(val_L1)
+        val_mse_values.append(val_mse)
         val_perplexity_values.append(val_perp)
         val_bleu_values.append(val_bleu)
         val_crossmodal_values.append(val_crossmodal)
@@ -95,13 +95,13 @@ def train_sequence_predictor(
     return {
         "epoch_losses": epoch_losses,
 
-        "train_L1": train_L1_values,
+        "train_mse": train_mse_values,
         "train_perplexity": train_perplexity_values,
         "train_bleu": train_bleu_values,
         "train_crossmodal": train_crossmodal_values,
         "train_ssim": train_ssim_values,
 
-        "val_L1": val_L1_values,
+        "val_mse": val_mse_values,
         "val_perplexity": val_perplexity_values,
         "val_bleu": val_bleu_values,
         "val_crossmodal": val_crossmodal_values,
