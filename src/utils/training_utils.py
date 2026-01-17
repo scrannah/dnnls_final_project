@@ -77,14 +77,15 @@ def validation(model, data_loader, device, tokenizer, criterion_text, criterion_
 
         img_emb = model.image_encoder(image_target)  # GT instead of predicted cms
         txt_emb = model.text_encoder(pred_ids2)
-        img_emb = F.normalize(img_emb, p=2, dim=1) # Normalising embeddings for cosine similarity
-        txt_emb = F.normalize(txt_emb, p=2, dim=1)
 
         # if text encoder returns embeddings for each token. average them
         if isinstance(txt_emb, tuple):  # if text encoder returns tuple not tensor, take 1st value only
             txt_emb = txt_emb[0]
         if txt_emb.dim() == 3:
             txt_emb = txt_emb.mean(dim=1)  # mean pool sequence
+
+        img_emb = F.normalize(img_emb, p=2, dim=1) # Normalising embeddings for cosine similarity
+        txt_emb = F.normalize(txt_emb, p=2, dim=1)
 
         val_cross_modal = F.cosine_similarity(img_emb, txt_emb, dim=1).mean().item()
 
