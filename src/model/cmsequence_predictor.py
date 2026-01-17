@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from src.attention.attention import Attention
 
 
@@ -64,10 +65,13 @@ class CMSequencePredictor(nn.Module):
         # Combine visual and text latents with a learned gate
         z_t_flat = hidden.squeeze(0)  # Shape: [b*s, latent]
 
+        z_v_flat = F.normalize(z_v_flat, p=2, dim=1) # L2 normalisation to help align them more
+        z_t_flat = F.normalize(z_t_flat, p=2, dim=1)
+
         fusion_input = torch.cat((z_v_flat, z_t_flat), dim=1)  # Shape: [b*s, 2*latent]
         gate = torch.sigmoid(self.fusion_gate(fusion_input))   # Shape: [b*s, latent]
 
-        z_fusion_flat = gate * z_v_flat + (1 - gate) * z_t_flat  # Shape: [b*s, latent]
+        z_fusion_flat = gate * z_v_flat + (1 - gate) * z_t_flat  # GATED FUSION
 
         # "Un-flatten" back into a sequence
         z_fusion_seq = z_fusion_flat.view(batch_size, seq_len, -1)  # Shape: [b, s, latent]
