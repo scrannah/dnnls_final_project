@@ -77,8 +77,10 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
 
         img_emb = model.image_encoder(image_target)  # GT instead of predicted cms
         txt_emb = model.text_encoder(pred_ids2)
+        img_emb = F.normalize(img_emb, p=2, dim=1) # Normalising embeddings for cosine similarity
+        txt_emb = F.normalize(txt_emb, p=2, dim=1)
 
-        # if text encoder returns embrddinsg for each token. average them
+        # if text encoder returns embeddings for each token. average them
         if isinstance(txt_emb, tuple):  # if text encoder returns tuple not tensor, take 1st value only
             txt_emb = txt_emb[0]
         if txt_emb.dim() == 3:
@@ -86,10 +88,10 @@ def validation(model, data_loader, device, tokenizer, criterion_images, criterio
 
         val_cross_modal = F.cosine_similarity(img_emb, txt_emb, dim=1).mean().item()
 
-        perm = torch.randperm(txt_emb.size(0), device=txt_emb.device)
-        cms_shuffled = F.cosine_similarity(img_emb, txt_emb[perm], dim=1).mean().item()
+        # perm = torch.randperm(txt_emb.size(0), device=txt_emb.device)
+        # cms_shuffled = F.cosine_similarity(img_emb, txt_emb[perm], dim=1).mean().item()
 
-        print("CMS shuffled:", cms_shuffled)
+        # print("CMS shuffled:", cms_shuffled)
         print(f"Validation Cross-modal Similarity: {val_cross_modal:.4f}")
 
         figure, ax = plt.subplots(2, 6, figsize=(20, 5), gridspec_kw={'height_ratios': [2, 1.5]})
