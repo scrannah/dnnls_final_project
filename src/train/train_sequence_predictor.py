@@ -70,8 +70,8 @@ def train_sequence_predictor(
         print("----------------")
         mse_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation(model, train_dataloader,
                                                                                                device, tokenizer,
-                                                                                               criterion_images,
-                                                                                               criterion_text)
+                                                                                               criterion_text,
+                                                                                               criterion_ctx)
         train_mse_values.append(mse_values)
         train_perplexity_values.append(perplexity_values)
         train_bleu_values.append(bleu_values)
@@ -80,7 +80,7 @@ def train_sequence_predictor(
         print("Validation on validation dataset")
         print("----------------")
         val_mse, val_perp, val_bleu, val_crossmodal, val_ssim = validation(model, val_dataloader, device, tokenizer,
-                                                                          criterion_images, criterion_text)
+                                                                          criterion_text, criterion_ctx)
         val_mse_values.append(val_mse)
         val_perplexity_values.append(val_perp)
         val_bleu_values.append(val_bleu)
