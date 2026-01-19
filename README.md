@@ -1,5 +1,5 @@
 # DNNLS Final Assessment   
-Author: Hannah Timms 
+Hannah Timms 
  
 --- 
  
@@ -11,11 +11,12 @@ The task focuses on story reasoning, where a model must understand causal and te
  
 We use the StoryReasoning dataset for training and evaluation: 
  
-- Dataset: https://huggingface.co/datasets/daniel3303/StoryReasoning 
+- Dataset: https://huggingface.co/datasets/daniel3303/StoryReasoning
+
+---
  
 ## Problem Definition 
  
-
 Given a sequence of K image–text pairs, the model must predict the (K+1)th image and corresponding textual description. 
 
 This task requires the system to: 
@@ -28,8 +29,6 @@ Generate multimodal outputs that are both visually plausible and narratively con
 
 The provided baseline architecture performs multimodal fusion via simple latent concatenation. This approach does not consider how useful each unimodal latent is to the fused representation. 
 
- 
- 
 --- 
  
 ## Methods 
@@ -52,7 +51,7 @@ A high-level diagram of the modified architecture can be found here:
 
 docs/architecture_diagram.png 
 
- 
+---
  
 ## Results 
  
@@ -68,7 +67,7 @@ docs/architecture_diagram.png
 
 Cross-modal similarity improves substantially compared to the baseline when introducing a cross-modal fusion gate. However, when retrained modalities are added, cross-modal similarity decreases while unimodal generation metrics improve. This suggests a trade-off between representation alignment and generation quality, which is widely observed in multimodal learning systems, such as CLIP (Radford et al., 2021).
 
-- Loss curves: `results/loss_curves.png` 
+- Loss curves shown in: `results/loss_curves.png` 
  
 ### Qualitative Analysis 
  
@@ -86,8 +85,8 @@ The proposed cross-modal fusion gate improves cross-modal similarity, suggesting
 
 ## Future Work 
 
-- Full disentanglement of content and context heads with a visual autoencoder. 
+- Full disentanglement of content and context heads within the visual autoencoder. 
 - Using additional tags to extract information from the dataset. 
 - Utilising skip connections to aid visual reconstructions in the decoder. 
-- Multimodal contrastive learning. 
+- Utilising multimodal contrastive learning models such as CLIP. 
  
