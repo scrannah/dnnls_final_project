@@ -95,11 +95,11 @@ def train_sequence_predictor(
     return {
         "epoch_losses": epoch_losses,
 
-        "train_mse": test_mse_values,
-        "train_perplexity": test_perplexity_values,
-        "train_bleu": test_bleu_values,
-        "train_crossmodal": test_crossmodal_values,
-        "train_ssim": test_ssim_values,
+        "test_mse": test_mse_values,
+        "test_perplexity": test_perplexity_values,
+        "test_bleu": test_bleu_values,
+        "test_crossmodal": test_crossmodal_values,
+        "test_ssim": test_ssim_values,
 
         "val_mse": val_mse_values,
         "val_perplexity": val_perplexity_values,
