@@ -56,6 +56,8 @@ docs/architecture_diagram.png
 ## Results 
  
 ### Quantitative Evaluation 
+
+Averaged over 20 epochs:
  
 | Metric                 | Baseline Average | Cross-Modal Gate | Cross-Modal Gate + Retrained Modalities |
 |------------------------|------------------|------------------|-----------------------------------------|
