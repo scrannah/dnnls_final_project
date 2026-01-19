@@ -41,11 +41,22 @@ To support effective multimodal reasoning, we also strengthen the unimodal encod
 
 The final architecture consists of: 
 
-A ResNet18-style visual encoder with perceptual and gradient losses, and a decoder with additional layers 
+A ResNet18 visual encoder with perceptual and gradient losses, and a decoder with additional layers 
 
 A retrained text autoencoder with increased latent dimensionality (128) to match the visual autoencoder 
 
 A learned cross-modal fusion gate replacing simple latent concatenation within the sequence model 
+
+Cross-modal fusion gate code example:
+
+# Combine visual and text latents with a learned gate
+z_v_flat = F.normalize(z_v_flat, p=2, dim=1) # L1 normalisation to align vectors for cosine similarity
+z_t_flat = F.normalize(z_t_flat, p=2, dim=1)
+
+fusion_input = torch.cat((z_v_flat, z_t_flat), dim=1)  # [b*s, 2*latent]
+gate = torch.sigmoid(self.fusion_gate(fusion_input))   # [b*s, latent]
+
+z_fusion_flat = gate * z_v_flat + (1 - gate) * z_t_flat
 
 A high-level diagram of the modified architecture can be found here: 
 
