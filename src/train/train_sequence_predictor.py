@@ -15,7 +15,7 @@ def train_sequence_predictor(
         num_epochs,
         lambda_cm
 ):
-    model.eval()
+    model.train()
     epoch_losses = []
     test_mse_values = []
     test_perplexity_values = []
@@ -59,9 +59,9 @@ def train_sequence_predictor(
             # added a cm alignment loss to push them together
 
             # Optimizing
-            # optimizer.zero_grad()
-            # loss.backward()
-            # optimizer.step()
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
             running_loss += loss.item() * frames.size(0)
 
