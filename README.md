@@ -49,7 +49,6 @@ A learned cross-modal fusion gate replacing simple latent concatenation within t
 
 Cross-modal fusion gate code example:
 
-# Combine visual and text latents with a learned gate
 z_v_flat = F.normalize(z_v_flat, p=2, dim=1) # L1 normalisation to align vectors for cosine similarity
 z_t_flat = F.normalize(z_t_flat, p=2, dim=1)
 
@@ -60,7 +59,7 @@ z_fusion_flat = gate * z_v_flat + (1 - gate) * z_t_flat
 
 A high-level diagram of the modified architecture can be found here: 
 
-docs/architecture_diagram.png 
+results and docs/architecture_diagram.png 
 
 ---
  
