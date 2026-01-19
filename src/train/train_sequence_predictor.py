@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 def train_sequence_predictor(
         model,
-        train_dataloader,
+        test_dataloader,
         val_dataloader,
         optimizer,
         criterion_images,
@@ -17,11 +17,11 @@ def train_sequence_predictor(
 ):
     model.train()
     epoch_losses = []
-    train_mse_values = []
-    train_perplexity_values = []
-    train_bleu_values = []
-    train_crossmodal_values = []
-    train_ssim_values = []
+    test_mse_values = []
+    test_perplexity_values = []
+    test_bleu_values = []
+    test_crossmodal_values = []
+    test_ssim_values = []
 
     val_mse_values = []
     val_perplexity_values = []
@@ -31,7 +31,7 @@ def train_sequence_predictor(
     for epoch in range(num_epochs):
 
         running_loss = 0.0
-        for frames, descriptions, image_target, text_target in train_dataloader:
+        for frames, descriptions, image_target, text_target in test_dataloader:
             # Send images and tokens to the GPU
             descriptions = descriptions.to(device)
             frames = frames.to(device)
@@ -66,17 +66,17 @@ def train_sequence_predictor(
             running_loss += loss.item() * frames.size(0)
 
         model.eval()
-        print("Validation on training dataset")
+        print("Validation on test dataset")
         print("----------------")
-        mse_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation(model, train_dataloader,
+        mse_values, perplexity_values, bleu_values, crossmodal_values, ssim_values = validation(model, test_dataloader,
                                                                                                device, tokenizer,
                                                                                                criterion_text,
                                                                                                criterion_ctx)
-        train_mse_values.append(mse_values)
-        train_perplexity_values.append(perplexity_values)
-        train_bleu_values.append(bleu_values)
-        train_crossmodal_values.append(crossmodal_values)
-        train_ssim_values.append(ssim_values)
+        test_mse_values.append(mse_values)
+        test_perplexity_values.append(perplexity_values)
+        test_bleu_values.append(bleu_values)
+        test_crossmodal_values.append(crossmodal_values)
+        test_ssim_values.append(ssim_values)
         print("Validation on validation dataset")
         print("----------------")
         val_mse, val_perp, val_bleu, val_crossmodal, val_ssim = validation(model, val_dataloader, device, tokenizer,
@@ -88,18 +88,18 @@ def train_sequence_predictor(
         val_ssim_values.append(val_ssim)
         model.train()
 
-        epoch_loss = running_loss / len(train_dataloader.dataset)
+        epoch_loss = running_loss / len(test_dataloader.dataset)
         epoch_losses.append(epoch_loss)
         print(f"[Epoch {epoch + 1}] AE Loss: {epoch_loss:.4f}")
 
     return {
         "epoch_losses": epoch_losses,
 
-        "train_mse": train_mse_values,
-        "train_perplexity": train_perplexity_values,
-        "train_bleu": train_bleu_values,
-        "train_crossmodal": train_crossmodal_values,
-        "train_ssim": train_ssim_values,
+        "train_mse": test_mse_values,
+        "train_perplexity": test_perplexity_values,
+        "train_bleu": test_bleu_values,
+        "train_crossmodal": test_crossmodal_values,
+        "train_ssim": test_ssim_values,
 
         "val_mse": val_mse_values,
         "val_perplexity": val_perplexity_values,
