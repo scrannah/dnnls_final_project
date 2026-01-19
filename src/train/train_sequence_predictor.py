@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 def train_sequence_predictor(
         model,
-        test_dataloader,
+        test_dataloader, # for testing
         val_dataloader,
         optimizer,
         criterion_images,
