@@ -1,0 +1,38 @@
+dataset:
+  name: StoryReasoning
+  source: https://huggingface.co/datasets/daniel3303/StoryReasoning
+  sequence_length: K
+
+model:
+  fusion_method: cross_modal_gate
+  latent_dim: 128
+  sequence_model: GRU
+
+visual_autoencoder:
+  encoder: resnet18_style
+  decoder: cnn_decoder
+  input_resolution: [244, 244]
+  losses:
+    - l1
+    - mse
+    - perceptual
+    - gradient
+
+text_autoencoder:
+  architecture: seq2seqlstm
+  latent_dim: 128
+  retrained: true
+
+training:
+  epochs: 20
+  batch_size: 4
+  optimizer: adam
+  learning_rate: 1e-3
+
+evaluation:
+  metrics:
+    - image_mse
+    - ssim
+    - bleu
+    - perplexity
+    - cross_modal_similarity
