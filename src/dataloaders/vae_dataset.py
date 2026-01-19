@@ -7,7 +7,7 @@ class AutoEncoderTaskDataset(Dataset):
     def __init__(self, dataset):
         self.dataset = dataset
         self.transform = transforms.Compose([
-            transforms.Resize((224, 224)),  # made it same as sp size so it doesnt break
+            transforms.Resize((224, 224)),
             transforms.ColorJitter(brightness=(0.9, 1.4), contrast=(0.9, 1.3)),
             transforms.ToTensor(),  # HxWxC -> CxHxW
             #transforms.Normalize(mean=[0.150, 0.150, 0.150],
