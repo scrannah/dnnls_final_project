@@ -85,7 +85,7 @@ The proposed cross-modal fusion gate improves cross-modal similarity, suggesting
 ---
 
 ## Future Work 
--	 
+
 - Full disentanglement of content and context heads with a visual autoencoder. 
 - Using additional tags to extract information from the dataset. 
 - Utilising skip connections to aid visual reconstructions in the decoder. 
